@@ -37,14 +37,27 @@ Rectangle {
 	border.width: plasmoid.configuration.displayBorder ? plasmoid.configuration.borderThickness : 0
 	radius: height > width ? height * (plasmoid.configuration.borderRadius / 100) : width * (plasmoid.configuration.borderRadius / 100)
 
-	TextMetrics {
-		id: textMet
-		text: numberText.text
-		font: numberText.font
+	Text {
+		id: sizeRefText
+		visible: false
+		// color: "red"
+		text: numberBox.text
+		font {
+			family: plasmoid.configuration.fontFamily || Kirigami.Theme.defaultFont.family
+			bold: plasmoid.configuration.fontBold
+			italic: plasmoid.configuration.fontItalic
+			pixelSize: fontSizeChecked ? plasmoid.configuration.fontSize : Kirigami.Theme.defaultFont.pixelSize
+		}
 	}
 
-	implicitWidth: Math.max(textMet.width + 10, 18)
-	implicitHeight: textMet.height + 6
+	Layout.minimumWidth: sizeRefText.width + 10
+	Layout.minimumHeight: sizeRefText.height
+
+	Layout.preferredWidth: sizeRefText.width + 10
+	Layout.preferredHeight: sizeRefText.height
+
+	Layout.fillWidth: Plasmoid.formFactor != PlasmaCore.Types.Horizontal
+	Layout.fillHeight: Plasmoid.formFactor != PlasmaCore.Types.Vertical
 
 	Rectangle {
 		id: windowIndicator
@@ -64,15 +77,22 @@ Rectangle {
 	Text {
 		id: numberText
 		visible: !plasmoid.configuration.showWindowIcons
+
 		anchors.centerIn: parent
-		text: pagerModel.currentPage + 1
+		width: parent.width - 10
+		height: parent.height
+		horizontalAlignment: Text.AlignHCenter
+		verticalAlignment: Text.AlignVCenter
+
 		color: fontColor
 		font {
 			family: plasmoid.configuration.fontFamily || Kirigami.Theme.defaultFont.family
 			bold: plasmoid.configuration.fontBold
 			italic: plasmoid.configuration.fontItalic
-			pixelSize: fontSizeChecked ? plasmoid.configuration.fontSize : Math.min(parent.height*0.7, parent.width*0.7)
+			pixelSize: fontSizeChecked ? plasmoid.configuration.fontSize : 999
 		}
+		fontSizeMode: fontSizeChecked ? Text.FixedSize : Text.Fit
+		minimumPixelSize: Kirigami.Theme.smallFont.pixelSize
 	}
 
 	Grid {

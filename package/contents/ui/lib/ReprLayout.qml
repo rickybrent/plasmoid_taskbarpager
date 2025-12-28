@@ -116,12 +116,7 @@ GridLayout {
 			visible: reprLayout.shouldShowFullLayout || index === pagerModel.currentPage
 			// TODO fix in plasma
 			text: (plasmoid.configuration.showDesktopNames && model.display != "") ? model.display : index + 1
-			Layout.fillWidth: true
-			Layout.fillHeight: true
-			Layout.minimumWidth: implicitWidth
-			Layout.preferredHeight: implicitHeight
-			Layout.minimumHeight: 20
-			Layout.preferredWidth: Math.max(implicitWidth, height)
+
 			Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
 
 			// this is horrible, is there really no other way to do this in qml???
