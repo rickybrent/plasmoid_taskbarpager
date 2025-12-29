@@ -37,6 +37,7 @@ KCM.SimpleKCM {
 	property alias cfg_showDesktopNames: showDesktopNames.checked
 	property alias cfg_showWindowIcons: showWindowIcons.checked
 	property alias cfg_showOnlyCurrentScreen: showOnlyCurrentScreen.checked
+	property alias cfg_hideDesktopsWithoutWindows: hideDesktopsWithoutWindows.checked
 
 	Kirigami.FormLayout {
 		id: layoutGeneral
@@ -55,18 +56,24 @@ KCM.SimpleKCM {
 
 		QtControls.CheckBox {
 			id: invertScrollDirection
+			enabled: enableScrolling.checked
 			text: i18n("Invert scroll direction")
 		}
 
 		QtControls.CheckBox {
 			id: wrapPage
-			enabled: cfg_enableScrolling
+			enabled: enableScrolling.checked
 			text: i18n("Navigation wraps around")
 		}
 
 		QtControls.CheckBox {
 			id: showOnlyCurrentScreen
 			text: i18n("Only show windows from current Screen in pager")
+		}
+
+		QtControls.CheckBox {
+			id: hideDesktopsWithoutWindows
+			text: i18n("Hide desktops without any windows")
 		}
 
 		Item {

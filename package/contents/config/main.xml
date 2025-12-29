@@ -34,6 +34,10 @@
 			<label>Whether to wrap page when navigating with pager</label>
 			<default>true</default>
 		</entry>
+		<entry name="hideDesktopsWithoutWindows" type="Bool">
+			<label>Whether to hide desktops without any windows</label>
+			<default>false</default>
+		</entry>
 		<entry name="actionOnCompactLayout" type="Bool">
 			<label>Whether to directly show the overview / desktop in compact layout</label>
 			<default>false</default>
