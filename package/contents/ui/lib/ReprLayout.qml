@@ -114,8 +114,11 @@ GridLayout {
 
 		NumberBox {
 			id: nBox
-			visible: (reprLayout.shouldShowFullLayout || index === pagerModel.currentPage)
-				&& (proxyRepeater.count > 0 || !plasmoid.configuration.hideDesktopsWithoutWindows)
+			visible: index === pagerModel.currentPage
+				|| (
+					reprLayout.shouldShowFullLayout
+					&& (proxyRepeater.count > 0 || !plasmoid.configuration.hideDesktopsWithoutWindows)
+				)
 			// TODO fix in plasma
 			text: (plasmoid.configuration.showDesktopNames && model.display != "") ? model.display : index + 1
 
