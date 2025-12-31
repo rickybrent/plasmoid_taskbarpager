@@ -28,6 +28,7 @@ KCM.SimpleKCM {
 	id: layoutGeneralRoot
 
 	property alias cfg_forceLayout: pagerLayout.currentIndex
+	property alias cfg_enableDnD: enableDnD.checked
 	property alias cfg_enableScrolling: enableScrolling.checked
 	property alias cfg_invertScrollDirection: invertScrollDirection.checked
 	property alias cfg_wrapPage: wrapPage.checked
@@ -47,6 +48,13 @@ KCM.SimpleKCM {
 		QtControls.CheckBox {
 			id: stayVisible
 			text: i18n("Stay visible when there is only one virtual desktop")
+		}
+
+		QtControls.CheckBox {
+			id: enableDnD
+			text: i18n("Enable dropping apps to move")
+			QtControls.ToolTip.visible: hovered
+			QtControls.ToolTip.text: "Enable drag-and-dropping apps from the task manager to move them to other desktops"
 		}
 
 		QtControls.CheckBox {

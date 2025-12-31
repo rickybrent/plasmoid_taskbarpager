@@ -22,6 +22,10 @@
 			<label>Whether to stay visible when there is only one virtual desktop</label>
 			<default>true</default>
 		</entry>
+		<entry name="enableDnD" type="Bool">
+			<label>Whether to enable drag-and-dropping apps from the task manager to move them to other desktops</label>
+			<default>true</default>
+		</entry>
 		<entry name="enableScrolling" type="Bool">
 			<label>Whether to enable scrolling to change the active desktop</label>
 			<default>true</default>

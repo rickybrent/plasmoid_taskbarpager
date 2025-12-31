@@ -24,6 +24,7 @@ import org.kde.plasma.components as PlasmaComponents
 import org.kde.kquickcontrolsaddons as KQuickControlsAddonsComponents
 import org.kde.kirigami as Kirigami
 import org.kde.plasma.private.pager
+import org.kde.draganddrop as DnD
 
 
 GridLayout {
@@ -139,6 +140,17 @@ GridLayout {
 					result.push(taskProxy.iconSource);
 				}
 				return result;
+			}
+
+			DnD.DropArea {
+				id: droparea
+				enabled: plasmoid.configuration.enableDnD
+				anchors.fill: parent
+				preventStealing: true
+
+				onDrop: event => {
+							pagerModel.drop(event.mimeData, event.modifiers, model.TasksModel.virtualDesktop);
+						}
 			}
 
 			//highlight the current desktop
