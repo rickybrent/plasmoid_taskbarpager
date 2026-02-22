@@ -27,7 +27,8 @@ import org.kde.plasma.components as PlasmaComponents
 import org.kde.kquickcontrolsaddons as KQuickControlsAddonsComponents
 import org.kde.kirigami as Kirigami
 
-import org.kde.plasma.private.pager
+//import org.kde.plasma.private.pager
+//import plasma.applet.org.kde.plasma.pager
 import org.kde.kcmutils as KCM
 import org.kde.config as KConfig
 
@@ -55,7 +56,7 @@ PlasmoidItem {
 	}
 
 	function runOverview() {
-		executable.exec('qdbus6 org.kde.kglobalaccel /component/kwin invokeShortcut Overview')
+		executable.exec('qdbus org.kde.kglobalaccel /component/kwin invokeShortcut Overview')
 	}
 
 	function switchDesktop(wheel) {

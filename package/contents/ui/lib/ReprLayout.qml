@@ -24,12 +24,15 @@ import org.kde.plasma.components as PlasmaComponents
 import org.kde.kquickcontrolsaddons as KQuickControlsAddonsComponents
 import org.kde.kirigami as Kirigami
 import org.kde.plasma.private.pager
-import org.kde.draganddrop as DnD
 
 
 GridLayout {
 	id: reprLayout
+	Layout.alignment: Qt.AlignTop
 	property bool isFullRep: true
+	rowSpacing: 0
+	columnSpacing: 3
+
 
 	property color bgColorHighlight: plasmoid.configuration.activeBgColorChecked ?
 			plasmoid.configuration.activeBgColor : Kirigami.Theme.backgroundColor
@@ -65,8 +68,8 @@ GridLayout {
 
 	// if we have the space to lay the desktops out like the model says
 	function properLayoutFits(cols) {
-		let wantedWidth = 20 * cols
-		let wantedHeight = 20 * pagerModel.layoutRows
+		let wantedWidth = 25 * cols
+		let wantedHeight = 25 * pagerModel.layoutRows
 		return width >= wantedWidth && height >= wantedHeight
 	}
 
@@ -95,12 +98,12 @@ GridLayout {
 			// for vertical and horizontal panels, we ignore the height and width, respectively
 			// since the plasmoid can scale in those directions
 			case 2: { // horizontal
-				let availableRows = Math.floor(height / 20)
+				let availableRows = Math.floor(height / 25)
 				let targetRows = Math.max(Math.min(availableRows, pagerModel.layoutRows), 1)
 				return Math.ceil(pagerModel.count / targetRows)
 			}
 			case 3: { // vertical
-				let availableColumns = Math.floor(width / 20)
+				let availableColumns = Math.floor(width / 25)
 				return Math.max(Math.min(availableColumns, cols), 1)
 			}
 			default:
@@ -114,15 +117,16 @@ GridLayout {
 
 		NumberBox {
 			id: nBox
-			visible: index === pagerModel.currentPage
-				|| (
-					reprLayout.shouldShowFullLayout
-					&& (proxyRepeater.count > 0 || !plasmoid.configuration.hideDesktopsWithoutWindows)
-				)
+			visible: reprLayout.shouldShowFullLayout || index === pagerModel.currentPage
 			// TODO fix in plasma
 			text: (plasmoid.configuration.showDesktopNames && model.display != "") ? model.display : index + 1
-
-			Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
+			Layout.fillWidth: true
+			Layout.fillHeight: true
+			Layout.minimumWidth: implicitWidth
+			Layout.preferredHeight: implicitHeight 
+			Layout.minimumHeight: 25
+			Layout.preferredWidth: Math.max(implicitWidth, height)
+			Layout.alignment: Qt.AlignTop | Qt.AlignHCenter
 
 			// this is horrible, is there really no other way to do this in qml???
 			Repeater {
@@ -143,17 +147,6 @@ GridLayout {
 					result.push(taskProxy.iconSource);
 				}
 				return result;
-			}
-
-			DnD.DropArea {
-				id: droparea
-				enabled: plasmoid.configuration.enableDnD
-				anchors.fill: parent
-				preventStealing: true
-
-				onDrop: event => {
-							pagerModel.drop(event.mimeData, event.modifiers, model.TasksModel.virtualDesktop);
-						}
 			}
 
 			//highlight the current desktop

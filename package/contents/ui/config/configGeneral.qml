@@ -28,7 +28,6 @@ KCM.SimpleKCM {
 	id: layoutGeneralRoot
 
 	property alias cfg_forceLayout: pagerLayout.currentIndex
-	property alias cfg_enableDnD: enableDnD.checked
 	property alias cfg_enableScrolling: enableScrolling.checked
 	property alias cfg_invertScrollDirection: invertScrollDirection.checked
 	property alias cfg_wrapPage: wrapPage.checked
@@ -38,7 +37,8 @@ KCM.SimpleKCM {
 	property alias cfg_showDesktopNames: showDesktopNames.checked
 	property alias cfg_showWindowIcons: showWindowIcons.checked
 	property alias cfg_showOnlyCurrentScreen: showOnlyCurrentScreen.checked
-	property alias cfg_hideDesktopsWithoutWindows: hideDesktopsWithoutWindows.checked
+	property alias cfg_windowCountPerDesktop: windowCountPerDesktop.value
+
 
 	Kirigami.FormLayout {
 		id: layoutGeneral
@@ -51,37 +51,24 @@ KCM.SimpleKCM {
 		}
 
 		QtControls.CheckBox {
-			id: enableDnD
-			text: i18n("Enable dropping apps to move")
-			QtControls.ToolTip.visible: hovered
-			QtControls.ToolTip.text: "Enable drag-and-dropping apps from the task manager to move them to other desktops"
-		}
-
-		QtControls.CheckBox {
 			id: enableScrolling
 			text: i18n("Enable scrolling to change the active desktop")
 		}
 
 		QtControls.CheckBox {
 			id: invertScrollDirection
-			enabled: enableScrolling.checked
 			text: i18n("Invert scroll direction")
 		}
 
 		QtControls.CheckBox {
 			id: wrapPage
-			enabled: enableScrolling.checked
+			enabled: cfg_enableScrolling
 			text: i18n("Navigation wraps around")
 		}
 
 		QtControls.CheckBox {
 			id: showOnlyCurrentScreen
 			text: i18n("Only show windows from current Screen in pager")
-		}
-
-		QtControls.CheckBox {
-			id: hideDesktopsWithoutWindows
-			text: i18n("Hide desktops without any windows")
 		}
 
 		Item {
@@ -146,6 +133,14 @@ KCM.SimpleKCM {
 		QtControls.CheckBox {
 			id: actionOnCompactLayout
 			text: i18n("Directly do selected action in compact layout\ninstead of expanding full layout")
+		}
+
+		QtControls.SpinBox {
+			id: windowCountPerDesktop
+			Kirigami.FormData.label: i18n("Windows visible per desktop:")
+			from: 0
+			to: 10
+			stepSize: 1
 		}
 	}
 }

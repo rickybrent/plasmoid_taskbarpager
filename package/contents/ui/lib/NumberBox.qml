@@ -33,31 +33,19 @@ Rectangle {
 			plasmoid.configuration.fontColor : Kirigami.Theme.textColor
 	property bool showWindowIndicator: true
 	property list<var> iconSources: []
+	anchors.top: parent.top
 
 	border.width: plasmoid.configuration.displayBorder ? plasmoid.configuration.borderThickness : 0
 	radius: height > width ? height * (plasmoid.configuration.borderRadius / 100) : width * (plasmoid.configuration.borderRadius / 100)
 
-	Text {
-		id: sizeRefText
-		visible: false
-		// color: "red"
-		text: numberBox.text
-		font {
-			family: plasmoid.configuration.fontFamily || Kirigami.Theme.defaultFont.family
-			bold: plasmoid.configuration.fontBold
-			italic: plasmoid.configuration.fontItalic
-			pixelSize: fontSizeChecked ? plasmoid.configuration.fontSize : Kirigami.Theme.defaultFont.pixelSize
-		}
+	TextMetrics {
+		id: textMet
+		text: numberText.text
+		font: numberText.font
 	}
 
-	Layout.minimumWidth: sizeRefText.width + 10
-	Layout.minimumHeight: sizeRefText.height
-
-	Layout.preferredWidth: sizeRefText.width + 10
-	Layout.preferredHeight: sizeRefText.height
-
-	Layout.fillWidth: Plasmoid.formFactor != PlasmaCore.Types.Horizontal
-	Layout.fillHeight: Plasmoid.formFactor != PlasmaCore.Types.Vertical
+	implicitWidth: Math.max(textMet.width + 10, numberBox.height * (plasmoid.configuration.windowCountPerDesktop + 1) + 7)
+	implicitHeight: textMet.height + 6
 
 	Rectangle {
 		id: windowIndicator
@@ -76,34 +64,32 @@ Rectangle {
 
 	Text {
 		id: numberText
-		visible: !plasmoid.configuration.showWindowIcons
-
-		anchors.centerIn: parent
-		width: parent.width - 10
-		height: parent.height
-		horizontalAlignment: Text.AlignHCenter
-		verticalAlignment: Text.AlignVCenter
-
+		visible: plasmoid.configuration.stayVisible
+		anchors.left: parent
+		anchors.verticalCenter: parent.verticalCenter
+		text: pagerModel.currentPage + 1
 		color: fontColor
+		leftPadding: 5
+		rightPadding: 5
 		font {
 			family: plasmoid.configuration.fontFamily || Kirigami.Theme.defaultFont.family
 			bold: plasmoid.configuration.fontBold
 			italic: plasmoid.configuration.fontItalic
-			pixelSize: fontSizeChecked ? plasmoid.configuration.fontSize : 999
+			pixelSize: fontSizeChecked ? plasmoid.configuration.fontSize : Math.min(parent.height*0.7, parent.width*0.7)
 		}
-		fontSizeMode: fontSizeChecked ? Text.FixedSize : Text.Fit
-		minimumPixelSize: Kirigami.Theme.smallFont.pixelSize
 	}
 
 	Grid {
 		id: iconGrid
-		anchors.centerIn: parent
+		anchors.left: numberText.right
+		anchors.verticalCenter: parent.verticalCenter
 		visible: plasmoid.configuration.showWindowIcons
+		columnSpacing: 4
 
 		readonly property int maxIconCount: Math.floor(Math.max(numberBox.height, numberBox.width) / iconSize)
 		readonly property bool showIconsInColumn: numberBox.height > numberBox.width
 		readonly property bool showAllIcons: numberBox.iconSources.length <= maxIconCount
-		readonly property int iconSize: Math.min(numberBox.height * 0.7, numberBox.width * 0.7)
+		readonly property int iconSize: Math.min(numberBox.height * 0.95, numberBox.width * 0.95)
 
 		columns: (showIconsInColumn || !showAllIcons) ? 1 : maxIconCount
 		rows: (showIconsInColumn && showAllIcons) ? maxIconCount : 1

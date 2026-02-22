@@ -3,6 +3,10 @@
     "KPlugin": {
         "Authors": [
             {
+                "Email": "ricky@rickybrent.com",
+                "Name": "Ricky Brent"
+            },
+            {
                 "Email": "tilrnz@gmx.net",
                 "Name": "Tino Lorenz"
             },
@@ -87,11 +91,11 @@
         "Description[zh_TW]": "在虛擬桌面間切換",
         "EnabledByDefault": false,
         "Icon": "user-desktop",
-        "Id": "com.github.tilorenz.compact_pager",
+        "Id": "com.github.rickybrent.taskbar_pager",
         "License": "GPL-3.0+",
-        "Name": "Compact Pager",
-        "Version": "3.8",
-        "Website": "https://github.com/tilorenz/compact_pager"
+        "Name": "Taskbar Pager",
+        "Version": "1.0",
+        "Website": "https://github.com/rickybrent/taskbar_pager"
     },
     "X-Plasma-API-Minimum-Version": "6.0",
 	"X-Plasma-NotificationArea": "true",
