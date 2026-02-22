@@ -27,12 +27,12 @@ import org.kde.plasma.components as PlasmaComponents
 import org.kde.kquickcontrolsaddons as KQuickControlsAddonsComponents
 import org.kde.kirigami as Kirigami
 
-//import org.kde.plasma.private.pager
-//import plasma.applet.org.kde.plasma.pager
 import org.kde.kcmutils as KCM
 import org.kde.config as KConfig
 
 import org.kde.plasma.plasma5support as Plasma5Support
+
+import com.github.rickybrent.taskbarpager as PagerMod
 
 import "./lib"
 
@@ -40,7 +40,6 @@ PlasmoidItem {
 	id: root
 
 	Plasmoid.status: (pagerModel.shouldShowPager || plasmoid.configuration.stayVisible) ? PlasmaCore.Types.ActiveStatus : PlasmaCore.Types.HiddenStatus
-
 	property int wheelDelta: 0
 
 	function action_addDesktop() {
@@ -114,7 +113,7 @@ PlasmoidItem {
 		isFullRep: true
 	}
 
-	PagerModel {
+	PagerMod.PagerModel {
 		id: pagerModel
 
 		enabled: root.visible
@@ -124,7 +123,7 @@ PlasmoidItem {
 		showOnlyCurrentScreen: plasmoid.configuration.showOnlyCurrentScreen
 		screenGeometry: root.screenGeometry
 
-		pagerType: PagerModel.VirtualDesktops
+		pagerType: PagerMod.PagerModel.VirtualDesktops
 	}
 
 	Plasma5Support.DataSource {

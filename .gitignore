@@ -2,3 +2,48 @@
 *.jpg
 *.png
 
+# Build directories
+build/
+bin/
+.packing/
+
+# Qt/KDE generated files
+.qt/
+.rcc/
+*_autogen/
+CMakeFiles/
+CMakeCache.txt
+CMakeLists.txt.user
+cmake_install.cmake
+Makefile
+*.so
+*.a
+*.o
+*.pyc
+taskbarpager.qmltypes
+qmldir
+CTestTestfile.cmake
+*_qml_module_dir_map.qrc
+taskbarpagerplugin_com_github_rickybrent_taskbarpagerPlugin*
+meta_types/
+qmltypes/
+
+# Local environment files
+prefix.sh
+prefix.sh.fish
+*.log
+
+# Backups and temporary files
+*.bak
+*.old
+*.swp
+*~
+imports.bak/
+.DS_Store
+
+# IDEs
+.idea/
+.vscode/
+
+# Project specific ignored paths
+org/

@@ -23,7 +23,7 @@ import org.kde.plasma.core as PlasmaCore
 import org.kde.plasma.components as PlasmaComponents
 import org.kde.kquickcontrolsaddons as KQuickControlsAddonsComponents
 import org.kde.kirigami as Kirigami
-import org.kde.plasma.private.pager
+import com.github.rickybrent.taskbarpager as PagerMod
 
 
 GridLayout {
@@ -32,7 +32,6 @@ GridLayout {
 	property bool isFullRep: true
 	rowSpacing: 0
 	columnSpacing: 3
-
 
 	property color bgColorHighlight: plasmoid.configuration.activeBgColorChecked ?
 			plasmoid.configuration.activeBgColor : Kirigami.Theme.backgroundColor
@@ -137,6 +136,7 @@ GridLayout {
 					property var iconSource: model.decoration
 				}
 			}
+			
 
 			showWindowIndicator: plasmoid.configuration.showWindowIndicator && proxyRepeater.count > 0
 
