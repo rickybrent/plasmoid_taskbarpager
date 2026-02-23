@@ -3,8 +3,10 @@ import org.kde.plasma.core as PlasmaCore
 import org.kde.plasma.extras as PlasmaExtras
 import org.kde.plasma.plasmoid
 
+import com.github.rickybrent.taskbarpager as PagerMod
 PlasmaExtras.Menu {
     id: contextMenu
+    property PagerMod.Backend backend
 
     placement: {
         if (Plasmoid.location === PlasmaCore.Types.LeftEdge) {
@@ -19,7 +21,62 @@ PlasmaExtras.Menu {
     }
 
     property var taskBox
-    
+
+    function popup(): void {
+        Plasmoid.contextualActionsAboutToShow();
+
+        loadDynamicLaunchActions(taskBox.launcherUrlWithoutIcon);
+        openRelative();
+    }
+
+
+    function loadDynamicLaunchActions(launcherUrl: url): void {
+        let sections = [];
+
+        sections.push({
+            title: i18nc("@title:group for section of menu items", "Actions"),
+            group: "actions",
+            actions: backend.jumpListActions(launcherUrl, contextMenu)
+        });
+
+        // C++ can override section heading by returning a QString as first action
+        sections.forEach((section) => {
+            if (typeof section.actions[0] === "string") {
+                section.title = section.actions.shift(); // take first
+            }
+        });
+
+        // QMenu does not limit its width automatically. Even if we set a maximumWidth
+        // it would just cut off text rather than eliding. So we do this manually.
+        const textMetrics = Qt.createQmlObject("import QtQuick; TextMetrics {}", contextMenu);
+        textMetrics.elide = Qt.ElideRight;
+        textMetrics.elideWidth = TaskManagerApplet.LayoutMetrics.maximumContextMenuTextWidth();
+
+        sections.forEach(section => {
+            if (section["actions"].length > 0 || section["group"] === "actions") {
+                // Don't add the "Actions" header if the menu has nothing but actions
+                // in it, because then it's redundant (all menus have actions)
+                if (section.group !== "actions" || sections.length > 1) {
+                    var sectionHeader = newMenuItem(contextMenu);
+                    sectionHeader.text = section["title"];
+                    sectionHeader.section = true;
+                    contextMenu.addMenuItem(sectionHeader, startNewInstanceItem);
+                }
+            }
+
+            for (var i = 0; i < section["actions"].length; ++i) {
+                var item = newMenuItem(contextMenu);
+                item.action = section["actions"][i];
+
+                textMetrics.text = item.action.text.replace("&", "&&");
+                item.action.text = textMetrics.elidedText;
+
+                contextMenu.addMenuItem(item, startNewInstanceItem);
+            }
+        });
+    }
+
+
     PlasmaExtras.MenuItem {
         text: "Open New Window"
         icon: taskBox.source

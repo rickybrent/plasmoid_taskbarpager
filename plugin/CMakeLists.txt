@@ -3,9 +3,13 @@ set(taskbarpager_source
         pagermodel.h
         windowmodel.cpp
         windowmodel.h
+        backend.cpp
+        backend.cpp
 )
 
 find_package(LibTaskManager REQUIRED)
+find_package(KF6KIO REQUIRED)
+
 
 qt_add_qml_module(taskbarpager
     URI "com.github.rickybrent.taskbarpager"
@@ -28,9 +32,11 @@ target_link_libraries(taskbarpager
         Qt::Qml
         Qt::Widgets
 		Qt::Quick
+        KF6::KIOCore
+        KF6::KIOGui
         KF6::I18n
         KF6::Service
-        KF6::WindowSystem
+        KF6::WindowSystem    
         KWin::kwin
         Plasma::Plasma
         Plasma::Activities
