@@ -104,6 +104,8 @@ Rectangle {
 			property string title: ""
 			property bool isActive: false
 			property bool isMinimized: false
+			property var activateWindow
+			property var closeWindow
 
 			height: iconGrid.boxIconSize
 			width: iconGrid.boxIconSize
@@ -141,8 +143,14 @@ Rectangle {
 				onClicked: (mouse) => {
 					if (mouse.button === Qt.LeftButton) {
 						console.log("com.github.rickybrent.taskbarpager Left clicked: activate/focus", boxIconRoot.appName, "-", boxIconRoot.title);
+						if (boxIconRoot.activateWindow) {
+							boxIconRoot.activateWindow();
+						}
 					} else if (mouse.button === Qt.MiddleButton) {
 						console.log("com.github.rickybrent.taskbarpager Middle clicked: close", boxIconRoot.appName, "-", boxIconRoot.title);
+						if (boxIconRoot.closeWindow) {
+							boxIconRoot.closeWindow();
+						}
 					} else if (mouse.button === Qt.RightButton) {
 						console.log("com.github.rickybrent.taskbarpager Right clicked: context menu", boxIconRoot.appName, "-", boxIconRoot.title);
 					}
@@ -189,6 +197,8 @@ Rectangle {
 				title: modelData.title || ""
 				isActive: modelData.isActive || false
 				isMinimized: modelData.isMinimized || false
+				activateWindow: modelData.activateWindow
+				closeWindow: modelData.closeWindow
 			}
 		}
 

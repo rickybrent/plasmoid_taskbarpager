@@ -105,6 +105,16 @@ QVariant WindowModel::data(const QModelIndex &index, int role) const
     return TaskFilterProxyModel::data(index, role);
 }
 
+void WindowModel::requestActivate(const QModelIndex &index)
+{
+    TaskManager::TaskFilterProxyModel::requestActivate(index);
+}
+
+void WindowModel::requestClose(const QModelIndex &index)
+{
+    TaskManager::TaskFilterProxyModel::requestClose(index);
+}
+
 void WindowModel::onPagerItemSizeChanged()
 {
     if (rowCount() > 0) {

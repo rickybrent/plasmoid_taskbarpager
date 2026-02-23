@@ -166,7 +166,14 @@ GridLayout {
 						badgeText: badgeString,
 						needsAttention: taskProxy.needsAttention,
 						isActive: taskProxy.isActive,
-						isMinimized: taskProxy.isMinimized
+						isMinimized: taskProxy.isMinimized,
+						activateWindow: () => {
+							pagerModel.changePage(index); 
+							TasksModel.requestActivate(TasksModel.index(i, 0)); 
+						},
+						closeWindow: () => {
+							TasksModel.requestClose(TasksModel.index(i, 0));
+						}
 					});
 				}
 				return result;

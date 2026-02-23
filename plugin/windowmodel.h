@@ -22,7 +22,9 @@ public:
     QHash<int, QByteArray> roleNames() const override;
 
     QVariant data(const QModelIndex &index, int role) const override;
-
+    
+    Q_INVOKABLE void requestActivate(const QModelIndex &index) override;
+    Q_INVOKABLE void requestClose(const QModelIndex &index) override;
 private Q_SLOTS:
     void onPagerItemSizeChanged();
 
