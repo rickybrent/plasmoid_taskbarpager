@@ -40,6 +40,7 @@ PlasmoidItem {
 	id: root
 
 	Plasmoid.status: (pagerModel.shouldShowPager || plasmoid.configuration.stayVisible) ? PlasmaCore.Types.ActiveStatus : PlasmaCore.Types.HiddenStatus
+	Plasmoid.constraintHints: Plasmoid.CanFillArea
 	property int wheelDelta: 0
 
 	function action_addDesktop() {

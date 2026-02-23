@@ -26,7 +26,7 @@ import org.kde.kirigami as Kirigami
 import com.github.rickybrent.taskbarpager as PagerMod
 
 Rectangle {
-	id: numberBox
+	id: taskbarBox
 	property alias text: numberText.text 
 	property bool fontSizeChecked: plasmoid.configuration.fontSizeChecked
 	property color fontColor: plasmoid.configuration.fontColorChecked ? 
@@ -44,19 +44,19 @@ Rectangle {
 		font: numberText.font
 	}
 
-	implicitWidth: Math.max(textMet.width + 10, numberBox.height * (plasmoid.configuration.windowCountPerDesktop + 1) + 7)
+	implicitWidth: Math.max(textMet.width + 10, taskbarBox.height * (plasmoid.configuration.windowCountPerDesktop + 1) + 7)
 	implicitHeight: textMet.height + 6
 
 	Rectangle {
 		id: windowIndicator
-		visible: numberBox.showWindowIndicator
+		visible: taskbarBox.showWindowIndicator
 
 		anchors.left: numberText.right
 		anchors.top: numberText.top
 
 		width: 8
 		height: 8
-		border.color: numberBox.fontColor
+		border.color: taskbarBox.fontColor
 		border.width: 1
 		color: "transparent"
 		radius: width * (plasmoid.configuration.windowIndicatorRadius / 100)
@@ -86,26 +86,68 @@ Rectangle {
 		visible: plasmoid.configuration.showWindowIcons
 		columnSpacing: 4
 
-		readonly property int maxIconCount: Math.floor(Math.max(numberBox.height, numberBox.width) / iconSize)
-		readonly property bool showIconsInColumn: numberBox.height > numberBox.width
-		readonly property bool showAllIcons: numberBox.iconSources.length <= maxIconCount
-		readonly property int iconSize: Math.min(numberBox.height * 0.95, numberBox.width * 0.95)
+		readonly property int maxIconCount: Math.floor(Math.max(taskbarBox.height, taskbarBox.width) / iconSize)
+		readonly property bool showIconsInColumn: taskbarBox.height > taskbarBox.width
+		readonly property bool showAllIcons: taskbarBox.iconSources.length <= maxIconCount
+		readonly property int iconSize: Math.min(taskbarBox.height * 0.85, taskbarBox.width * 0.85)
+		readonly property int iconSize2: Math.min(taskbarBox.height, taskbarBox.width)
 
 		columns: (showIconsInColumn || !showAllIcons) ? 1 : maxIconCount
 		rows: (showIconsInColumn && showAllIcons) ? maxIconCount : 1
 		flow: showIconsInColumn ? Grid.TopToBottom : Grid.LeftToRight
 
-		component BoxIcon: Kirigami.Icon {
+		component BoxIcon: Item {
+			id: boxIconRoot
+			
+			property alias source: innerIcon.source
+			property string badgeText: "" 
+			property bool needsAttention: false
+			
 			height: iconGrid.iconSize
 			width: iconGrid.iconSize
-			roundToIconSize: false
+
+			Kirigami.Icon {
+				id: innerIcon
+				anchors.fill: parent
+				roundToIconSize: false
+			}
+
+			// Badge overlay (notification count, attention state)
+			Rectangle {
+				id: badge
+				visible: boxIconRoot.badgeText !== ""
+				
+				anchors.right: parent.right
+				anchors.bottom: parent.bottom
+				
+				height: parent.height * 0.55
+				width: Math.max(height, badgeLabel.implicitWidth + 4)
+				radius: height / 2
+				
+				color: boxIconRoot.needsAttention ? Kirigami.Theme.neutralTextColor : Kirigami.Theme.highlightColor
+				border.color: Kirigami.Theme.backgroundColor
+				border.width: 1
+
+				Text {
+					id: badgeLabel
+					anchors.centerIn: parent
+					text: boxIconRoot.badgeText
+					horizontalAlignment: Text.AlignHCenter
+					verticalAlignment: Text.AlignVCenter
+					color: Kirigami.Theme.highlightedTextColor
+					font.pixelSize: parent.height * 0.9
+					font.bold: true
+				}
+			}
 		}
 
 		Repeater {
-			model: numberBox.iconSources
+			model: taskbarBox.iconSources
 			BoxIcon {
 				visible: iconGrid.showAllIcons
-				source: modelData
+				source: modelData.source
+				badgeText: modelData.badgeText
+				needsAttention: modelData.needsAttention || false
 			}
 		}
 

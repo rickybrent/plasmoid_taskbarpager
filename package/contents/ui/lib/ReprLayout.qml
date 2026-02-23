@@ -114,8 +114,8 @@ GridLayout {
 		id: dRep
 		model: pagerModel
 
-		NumberBox {
-			id: nBox
+		TaskbarBox {
+			id: tBox
 			visible: reprLayout.shouldShowFullLayout || index === pagerModel.currentPage
 			// TODO fix in plasma
 			text: (plasmoid.configuration.showDesktopNames && model.display != "") ? model.display : index + 1
@@ -134,6 +134,9 @@ GridLayout {
 				Item {
 					visible: false
 					property var iconSource: model.decoration
+					property string title: model.display || ""
+					property string appName: model.AppName || ""
+					property bool needsAttention: model.IsDemandingAttention
 				}
 			}
 			
@@ -144,7 +147,22 @@ GridLayout {
 				const result = [];
 				for (let i = 0; i < proxyRepeater.count; i++) {
 					const taskProxy = proxyRepeater.itemAt(i);
-					result.push(taskProxy.iconSource);
+					let badgeString = "";
+					const numberMatch = taskProxy.title.match(/\((\d+)\)/);
+					if (numberMatch) {
+						badgeString = numberMatch[1];
+					} else if (taskProxy.title.startsWith("•") || taskProxy.title.endsWith("•")) {
+						badgeString = "•";
+					} else if (taskProxy.needsAttention) {
+						badgeString = "!";
+					}
+					result.push({
+						source: taskProxy.iconSource,
+						title: taskProxy.title,
+						appName: taskProxy.appName,
+						badgeText: badgeString,
+						needsAttention: taskProxy.needsAttention
+					});
 				}
 				return result;
 			}
