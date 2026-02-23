@@ -110,7 +110,6 @@ Rectangle {
 
 			height: iconGrid.boxIconSize
 			width: iconGrid.boxIconSize
-			opacity: boxIconRoot.isMinimized ? 0.3 : 1.0
 
 			// Active task highlight: (TODO: make this configurable.)
 			Rectangle {
@@ -118,6 +117,13 @@ Rectangle {
 				visible: boxIconRoot.isActive
 				readonly property color color_: Kirigami.Theme.highlightColor
 				color: Qt.rgba(color_.r, color_.g, color_.b, 0.3) 				
+			}
+			// Hovered task highlight:
+			Rectangle {
+				anchors.fill: parent
+				visible: iconMouseArea.containsMouse
+				readonly property color color_: Kirigami.Theme.highlightColor
+				color: Qt.rgba(color_.r, color_.g, color_.b, 0.2) 				
 			}
 
 			// Per-window tooltip.
@@ -133,13 +139,16 @@ Rectangle {
         		width: parent.width * 0.8
 		        height: parent.height * 0.8
 				anchors.centerIn: parent
+				opacity: boxIconRoot.isMinimized ? 0.4 : 1.0
 				roundToIconSize: false
 			}
 
 			// MouseArea to handle clicks
 			MouseArea {
+				id: iconMouseArea
 				anchors.fill: parent
 				acceptedButtons: Qt.LeftButton | Qt.MiddleButton | Qt.RightButton
+				hoverEnabled: true
 				
 				onClicked: (mouse) => {
 					if (mouse.button === Qt.LeftButton) {
