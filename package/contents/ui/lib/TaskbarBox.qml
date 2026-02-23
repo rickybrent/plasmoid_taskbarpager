@@ -24,6 +24,7 @@ import org.kde.plasma.components as PlasmaComponents
 import org.kde.kquickcontrolsaddons as KQuickControlsAddonsComponents
 import org.kde.kirigami as Kirigami
 import com.github.rickybrent.taskbarpager as PagerMod
+import QtQuick.Controls as Controls
 
 Rectangle {
 	id: taskbarBox
@@ -103,10 +104,40 @@ Rectangle {
 			property string appName: ""
 			property string title: ""
 			property bool isActive: false
+
+			property bool isClosable: false
+			property bool isMovable: false
+			property bool isResizable: false
 			property bool isMinimized: false
+			property bool isMinimizable: false
+			property bool isMaximized: false
+			property bool isMaximizable: false
+
+			property bool isFullScreen: false
+			property bool isFullScreenable: false
+			property bool isShaded: false
+			property bool isShadeable: false
+			property bool hasNoBorder: false
+			property bool canSetNoBorder: false
+			property bool canLaunchNewInstance: false
+			property bool isExcludedFromCapture: false
+			property bool isOnAllVirtualDesktops: false
+
 			property var activateWindow
 			property var closeWindow
 			property var minimizeWindow
+			property var maximizeWindow
+
+			property var toggleKeepAbove
+			property var toggleKeepBelow
+			property var newInstance
+			property var resize
+			property var move
+			property var toggleFullScreen
+			property var toggleShaded
+			property var toggleNoBorder
+			property var toggleExcludeFromCapture
+			property var togglePinToAllDesktops
 
 			height: iconGrid.boxIconSize
 			width: iconGrid.boxIconSize
@@ -144,6 +175,33 @@ Rectangle {
 				roundToIconSize: false
 			}
 
+			Controls.Menu {
+				id: contextMenu
+				
+				Controls.MenuItem {
+					text: boxIconRoot.isMinimized ? "Restore" : "Minimize"
+					icon.name: boxIconRoot.isMinimized ? "window-restore" : "window-minimize"
+					onTriggered: {
+						if (boxIconRoot.minimizeWindow) boxIconRoot.minimizeWindow();
+					}
+				}
+				Controls.MenuItem {
+					text: boxIconRoot.isMaximized ? "Restore" : "Maximize"
+					icon.name: boxIconRoot.isMaximized ? "window-restore" : "window-maximize"
+					onTriggered: {
+						if (boxIconRoot.maximizeWindow) boxIconRoot.maximizeWindow();
+					}
+				}
+				Controls.MenuSeparator {}
+				Controls.MenuItem {
+					text: "Close"
+					icon.name: "window-close"
+					onTriggered: {
+						if (boxIconRoot.closeWindow) boxIconRoot.closeWindow();
+					}
+				}
+			}
+
 			// MouseArea to handle clicks
 			MouseArea {
 				id: iconMouseArea
@@ -170,6 +228,7 @@ Rectangle {
 						}
 					} else if (mouse.button === Qt.RightButton) {
 						console.log("com.github.rickybrent.taskbarpager Right clicked: context menu", boxIconRoot.appName, "-", boxIconRoot.title);
+						contextMenu.popup();
 					}
 				}
 			}
@@ -213,10 +272,40 @@ Rectangle {
 				appName: modelData.appName || ""
 				title: modelData.title || ""
 				isActive: modelData.isActive || false
+				
+				isClosable: modelData.isClosable || false
+				isMovable: modelData.isMovable || false
+				isResizable: modelData.isResizable || false
 				isMinimized: modelData.isMinimized || false
+				isMinimizable: modelData.isMinimizable || false
+				isMaximized: modelData.isMaximized || false
+				isMaximizable: modelData.isMaximizable || false
+
+				isFullScreen: modelData.isFullScreen || false
+				isFullScreenable: modelData.isFullScreenable || false
+				isShaded: modelData.isShaded || false
+				isShadeable: modelData.isShadeable || false
+				hasNoBorder: modelData.hasNoBorder || false
+				canSetNoBorder: modelData.canSetNoBorder || false
+				canLaunchNewInstance: modelData.canLaunchNewInstance || false
+				isExcludedFromCapture: modelData.IsExcludedFromCapture || false
+				isOnAllVirtualDesktops: modelData.isOnAllVirtualDesktops || false
+
 				activateWindow: modelData.activateWindow
 				closeWindow: modelData.closeWindow
 				minimizeWindow: modelData.minimizeWindow
+				maximizeWindow: modelData.maximizeWindow
+
+				toggleKeepAbove: modelData.toggleKeepAbove
+				toggleKeepBelow: modelData.toggleKeepBelow
+				newInstance: modelData.newInstance
+				resize: modelData.resize
+				move: modelData.move
+				toggleFullScreen: modelData.toggleFullScreen
+				toggleShaded: modelData.toggleShaded
+				toggleNoBorder: modelData.toggleNoBorder
+				toggleExcludeFromCapture: modelData.toggleExcludeFromCapture
+				togglePinToAllDesktops: modelData.togglePinToAllDesktops
 			}
 		}
 

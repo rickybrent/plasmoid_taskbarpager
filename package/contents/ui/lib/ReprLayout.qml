@@ -137,10 +137,25 @@ GridLayout {
 					property string title: model.display || ""
 					property string appName: model.AppName || ""
 					property bool isDemandingAttention: model.IsDemandingAttention
-
 					property bool isActive: model.IsActive
+
+					property bool isClosable: model.IsClosable
+					property bool isMovable: model.IsMovable
+					property bool isResizable: model.IsResizable
 					property bool isMinimized: model.IsMinimized
+					property bool isMinimizable: model.IsMinimizable
 					property bool isMaximized: model.IsMaximized
+					property bool isMaximizable: model.IsMaximizable
+
+					property bool isFullScreen: model.IsFullScreen
+					property bool isFullScreenable: model.IsFullScreenable
+					property bool isShaded: model.IsShaded
+					property bool isShadeable: model.IsShadeable
+					property bool hasNoBorder: model.HasNoBorder
+					property bool canSetNoBorder: model.CanSetNoBorder
+					property bool canLaunchNewInstance: model.CanLaunchNewInstance
+					property bool isExcludedFromCapture: model.IsExcludedFromCapture
+					property bool isOnAllVirtualDesktops: model.IsOnAllVirtualDesktops
 				}
 			}
 			
@@ -167,7 +182,25 @@ GridLayout {
 						badgeText: badgeString,
 						isDemandingAttention: taskProxy.isDemandingAttention,
 						isActive: taskProxy.isActive,
+
+						isClosable: taskProxy.isClosable,
+						isMovable: taskProxy.isMovable,
+						isResizable: taskProxy.isResizable,
 						isMinimized: taskProxy.isMinimized,
+						isMinimizable: taskProxy.isMinimizable,
+						isMaximized: taskProxy.isMaximized,
+						isMaximizable: taskProxy.isMaximizable,
+
+						isFullScreen: taskProxy.isFullScreen,
+						isFullScreenable: taskProxy.isFullScreenable,
+						isShaded: taskProxy.isShaded,
+						isShadeable: taskProxy.isShadeable,
+						hasNoBorder: taskProxy.hasNoBorder,
+						canSetNoBorder: taskProxy.canSetNoBorder,
+						canLaunchNewInstance: taskProxy.canLaunchNewInstance,
+						isExcludedFromCapture: taskProxy.IsExcludedFromCapture,
+						isOnAllVirtualDesktops: taskProxy.isOnAllVirtualDesktops,
+
 						activateWindow: () => {
 							pagerModel.changePage(index); 
 							TasksModel.requestActivate(TasksModel.index(i, 0)); 
@@ -177,7 +210,45 @@ GridLayout {
 						},
 						minimizeWindow: () => {
 							TasksModel.requestToggleMinimized(TasksModel.index(i, 0));
-						}
+						},
+						maximizeWindow: () => {
+							TasksModel.requestToggleMaximized(TasksModel.index(i, 0));
+						},
+
+						toggleKeepAbove: () => {
+							TasksModel.requestToggleKeepAbove(TasksModel.index(i, 0));
+						},
+						toggleKeepBelow: () => {
+							TasksModel.requestToggleKeepBelow(TasksModel.index(i, 0));
+						},
+						newInstance: () => {
+							TasksModel.requestNewInstance(TasksModel.index(i, 0));
+						},
+						resize: () => {
+							TasksModel.requestResize(TasksModel.index(i, 0));
+						},
+						move: () => {
+							TasksModel.requestMove(TasksModel.index(i, 0));
+						},
+						toggleFullScreen: () => {
+							TasksModel.requestToggleFullScreen(TasksModel.index(i, 0));
+						},
+						toggleShaded: () => {
+							TasksModel.requestToggleShaded(TasksModel.index(i, 0));
+						},
+						toggleNoBorder: () => {
+							TasksModel.requestToggleNoBorder(TasksModel.index(i, 0));
+						},
+						toggleExcludeFromCapture: () => {
+							TasksModel.requestToggleExcludeFromCapture(TasksModel.index(i, 0));
+						},
+						togglePinToAllDesktops: () => {
+							if (taskProxy.isOnAllVirtualDesktops) {
+								TasksModel.requestVirtualDesktops(TasksModel.index(i, 0), [index]);
+							} else {
+								TasksModel.requestVirtualDesktops(TasksModel.index(i, 0), []);
+							}
+						},
 					});
 				}
 				return result;
