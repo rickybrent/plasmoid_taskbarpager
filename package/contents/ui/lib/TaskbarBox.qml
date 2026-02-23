@@ -24,7 +24,6 @@ import org.kde.plasma.components as PlasmaComponents
 import org.kde.kquickcontrolsaddons as KQuickControlsAddonsComponents
 import org.kde.kirigami as Kirigami
 import com.github.rickybrent.taskbarpager as PagerMod
-import QtQuick.Controls as Controls
 
 Rectangle {
 	id: taskbarBox
@@ -175,31 +174,15 @@ Rectangle {
 				roundToIconSize: false
 			}
 
-			Controls.Menu {
+			TaskContextMenu {
 				id: contextMenu
+				visualParent: boxIconRoot 
 				
-				Controls.MenuItem {
-					text: boxIconRoot.isMinimized ? "Restore" : "Minimize"
-					icon.name: boxIconRoot.isMinimized ? "window-restore" : "window-minimize"
-					onTriggered: {
-						if (boxIconRoot.minimizeWindow) boxIconRoot.minimizeWindow();
-					}
-				}
-				Controls.MenuItem {
-					text: boxIconRoot.isMaximized ? "Restore" : "Maximize"
-					icon.name: boxIconRoot.isMaximized ? "window-restore" : "window-maximize"
-					onTriggered: {
-						if (boxIconRoot.maximizeWindow) boxIconRoot.maximizeWindow();
-					}
-				}
-				Controls.MenuSeparator {}
-				Controls.MenuItem {
-					text: "Close"
-					icon.name: "window-close"
-					onTriggered: {
-						if (boxIconRoot.closeWindow) boxIconRoot.closeWindow();
-					}
-				}
+				isMinimized: boxIconRoot.isMinimized
+				isMaximized: boxIconRoot.isMaximized
+				minimizeWindow: boxIconRoot.minimizeWindow
+				maximizeWindow: boxIconRoot.maximizeWindow
+				closeWindow: boxIconRoot.closeWindow
 			}
 
 			// MouseArea to handle clicks
@@ -228,7 +211,7 @@ Rectangle {
 						}
 					} else if (mouse.button === Qt.RightButton) {
 						console.log("com.github.rickybrent.taskbarpager Right clicked: context menu", boxIconRoot.appName, "-", boxIconRoot.title);
-						contextMenu.popup();
+						contextMenu.openRelative();
 					}
 				}
 			}
