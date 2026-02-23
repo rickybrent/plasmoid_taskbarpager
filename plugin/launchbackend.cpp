@@ -4,7 +4,7 @@
     SPDX-License-Identifier: GPL-2.0-or-later
 */
 
-#include "backend.h"
+#include "launchbackend.h"
 
 #include <KConfigGroup>
 #include <KDesktopFile>
@@ -30,17 +30,17 @@
 #include <QVersionNumber>
 
 
-Backend::Backend(QObject *parent)
+LaunchBackend::LaunchBackend(QObject *parent)
     : QObject(parent)
     , m_actionGroup(new QActionGroup(this))
 {
 }
 
-Backend::~Backend()
+LaunchBackend::~LaunchBackend()
 {
 }
 
-QUrl Backend::tryDecodeApplicationsUrl(const QUrl &launcherUrl)
+QUrl LaunchBackend::tryDecodeApplicationsUrl(const QUrl &launcherUrl)
 {
     if (launcherUrl.isValid() && launcherUrl.scheme() == QLatin1String("applications")) {
         const KService::Ptr service = KService::serviceByMenuId(launcherUrl.path());
@@ -53,7 +53,7 @@ QUrl Backend::tryDecodeApplicationsUrl(const QUrl &launcherUrl)
     return launcherUrl;
 }
 
-QStringList Backend::applicationCategories(const QUrl &launcherUrl)
+QStringList LaunchBackend::applicationCategories(const QUrl &launcherUrl)
 {
     const QUrl desktopEntryUrl = tryDecodeApplicationsUrl(launcherUrl);
 
@@ -67,7 +67,7 @@ QStringList Backend::applicationCategories(const QUrl &launcherUrl)
     return desktopFile.desktopGroup().readXdgListEntry(QStringLiteral("Categories"));
 }
 
-QVariantList Backend::jumpListActions(const QUrl &launcherUrl, QObject *parent)
+QVariantList LaunchBackend::jumpListActions(const QUrl &launcherUrl, QObject *parent)
 {
     QVariantList actions;
 
@@ -113,14 +113,14 @@ QVariantList Backend::jumpListActions(const QUrl &launcherUrl, QObject *parent)
 }
 
 
-void Backend::setActionGroup(QAction *action) const
+void LaunchBackend::setActionGroup(QAction *action) const
 {
     if (action) {
         action->setActionGroup(m_actionGroup);
     }
 }
 
-QRect Backend::globalRect(QQuickItem *item) const
+QRect LaunchBackend::globalRect(QQuickItem *item) const
 {
     if (!item || !item->window()) {
         return QRect();
@@ -133,7 +133,7 @@ QRect Backend::globalRect(QQuickItem *item) const
     return iconRect;
 }
 
-bool Backend::isApplication(const QUrl &url) const
+bool LaunchBackend::isApplication(const QUrl &url) const
 {
     if (!url.isValid() || !url.isLocalFile()) {
         return false;
@@ -149,4 +149,4 @@ bool Backend::isApplication(const QUrl &url) const
     return desktopFile.hasApplicationType();
 }
 
-#include "moc_backend.cpp"
+#include "moc_launchbackend.cpp"

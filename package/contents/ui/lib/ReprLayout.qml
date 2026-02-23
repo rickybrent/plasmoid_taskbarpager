@@ -256,7 +256,6 @@ GridLayout {
 							TasksModel.requestToggleExcludeFromCapture(TasksModel.index(i, 0));
 						},
 						togglePinToAllDesktops: () => {
-							console.log('com.github.rickybrent.taskbarpager togglePinToAllDesktops ' + index + taskProxy.virtualDesktops);
 							if (taskProxy.isOnAllVirtualDesktops) {
 								TasksModel.requestVirtualDesktopPage(TasksModel.index(i, 0), index);
 							} else {
@@ -309,9 +308,7 @@ GridLayout {
 			DropArea {
 				anchors.fill: parent
 				onDropped: (drop) => {
-					console.log('com.github.rickybrent.taskbarpager drop'+index);
 					if (drop.source && drop.source.moveWindowToDesktopPage) {
-						console.log("com.github.rickybrent.taskbarpager early stop "+drop.source.sourcePage);
 						if (drop.source.sourcePage !== index) {
 							drop.source.visible = false
 						}

@@ -36,6 +36,9 @@ Rectangle {
 
 	border.width: plasmoid.configuration.displayBorder ? plasmoid.configuration.borderThickness : 0
 	radius: height > width ? height * (plasmoid.configuration.borderRadius / 100) : width * (plasmoid.configuration.borderRadius / 100)
+    PagerMod.LaunchBackend {
+        id: localLaunchBackend
+    }
 
 	TextMetrics {
 		id: textMet
@@ -195,6 +198,7 @@ Rectangle {
 				id: contextMenu
 				visualParent: taskBoxRoot 
 				taskBox: taskBoxRoot
+				launchBackend: localLaunchBackend
 			}
 
 			// MouseArea to handle clicks
@@ -210,11 +214,9 @@ Rectangle {
 
 				onClicked: (mouse) => {
 					if (mouse.button === Qt.LeftButton) {
-						console.log("com.github.rickybrent.taskbarpager Left clicked: activate/focus", taskBoxRoot.appName, "-", taskBoxRoot.title);
 						if (taskBoxRoot.isActive) {
 							if (taskBoxRoot.minimizeWindow) {
 								taskBoxRoot.minimizeWindow();
-								console.log("com.github.rickybrent.taskbarpager min")
 							}
 						} else {
 							if (taskBoxRoot.activateWindow) {
@@ -222,14 +224,11 @@ Rectangle {
 							}
 						}
 					} else if (mouse.button === Qt.MiddleButton) {
-						console.log("com.github.rickybrent.taskbarpager Middle clicked: close", taskBoxRoot.appName, "-", taskBoxRoot.title);
 						if (taskBoxRoot.closeWindow) {
 							taskBoxRoot.closeWindow();
 						}
 					} else if (mouse.button === Qt.RightButton) {
-						console.log("com.github.rickybrent.taskbarpager Right clicked: context menu", taskBoxRoot.appName, "-", taskBoxRoot.title);
-						console.log("com.github.rickybrent.taskbarpager Right clicked:" + taskBoxRoot.launcherUrlWithoutIcon);
-						contextMenu.openRelative();
+						contextMenu.popup();
 					}
 				}
 

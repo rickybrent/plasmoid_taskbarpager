@@ -4,9 +4,10 @@ import org.kde.plasma.extras as PlasmaExtras
 import org.kde.plasma.plasmoid
 
 import com.github.rickybrent.taskbarpager as PagerMod
+
 PlasmaExtras.Menu {
     id: contextMenu
-    property PagerMod.Backend backend
+    property PagerMod.LaunchBackend launchBackend
 
     placement: {
         if (Plasmoid.location === PlasmaCore.Types.LeftEdge) {
@@ -21,11 +22,13 @@ PlasmaExtras.Menu {
     }
 
     property var taskBox
+    property bool hasDynamicLaunchItems: false
 
     function popup(): void {
         Plasmoid.contextualActionsAboutToShow();
-
-        loadDynamicLaunchActions(taskBox.launcherUrlWithoutIcon);
+        if (!hasDynamicLaunchItems) {
+            loadDynamicLaunchActions(taskBox.launcherUrlWithoutIcon);
+        }
         openRelative();
     }
 
@@ -36,7 +39,7 @@ PlasmaExtras.Menu {
         sections.push({
             title: i18nc("@title:group for section of menu items", "Actions"),
             group: "actions",
-            actions: backend.jumpListActions(launcherUrl, contextMenu)
+            actions: launchBackend.jumpListActions(launcherUrl, contextMenu)
         });
 
         // C++ can override section heading by returning a QString as first action
@@ -50,7 +53,7 @@ PlasmaExtras.Menu {
         // it would just cut off text rather than eliding. So we do this manually.
         const textMetrics = Qt.createQmlObject("import QtQuick; TextMetrics {}", contextMenu);
         textMetrics.elide = Qt.ElideRight;
-        textMetrics.elideWidth = TaskManagerApplet.LayoutMetrics.maximumContextMenuTextWidth();
+        textMetrics.elideWidth = 200;
 
         sections.forEach(section => {
             if (section["actions"].length > 0 || section["group"] === "actions") {
@@ -74,19 +77,31 @@ PlasmaExtras.Menu {
                 contextMenu.addMenuItem(item, startNewInstanceItem);
             }
         });
+        hasDynamicLaunchItems = sections.length;
     }
 
+    function newMenuItem(parent: QtObject): PlasmaExtras.MenuItem {
+        return Qt.createQmlObject(`
+            import org.kde.plasma.extras as PlasmaExtras
+
+            PlasmaExtras.MenuItem {}
+        `, parent) as PlasmaExtras.MenuItem;
+    }
 
     PlasmaExtras.MenuItem {
-        text: "Open New Window"
-        icon: taskBox.source
+        id: startNewInstanceItem
         visible: taskBox.canLaunchNewInstance
+        text: i18nc("action:inmenu", "Open New Window")
+        icon: "window-new"
         onClicked: {
+            if (taskBox.newInstance) {
+                taskBox.newInstance();
+            }
         }
     }
     PlasmaExtras.MenuItem {
         separator: true
-        visible: taskBox.canLaunchNewInstance
+        visible: taskBox.canLaunchNewInstance || hasDynamicLaunchItems
     }
 
     PlasmaExtras.MenuItem {
@@ -127,9 +142,7 @@ PlasmaExtras.Menu {
         icon: "image-resize-symbolic"
         visible: taskBox.isResizable
         onClicked: {
-            console.log("com.github.rickybrent.taskbarpager resizing soon")
             if (taskBox.resize) {
-                console.log("com.github.rickybrent.taskbarpager resizing")
                 taskBox.resize();
             }
         }
@@ -153,7 +166,6 @@ PlasmaExtras.Menu {
         text: "On All Desktops"
         icon: taskBox.isOnAllVirtualDesktops ? "window-unpin" : "window-pin"
         onClicked: {
-            console.log('com.github.rickybrent.taskbarpager togglePinToAllDesktops' + taskBox.virtualDesktops);
             if (taskBox.togglePinToAllDesktops) {
                 taskBox.togglePinToAllDesktops();
             }

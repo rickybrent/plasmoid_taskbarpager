@@ -19,7 +19,7 @@ class QQuickItem;
 class QQuickWindow;
 class QJsonArray;
 
-class Backend : public QObject
+class LaunchBackend : public QObject
 {
     Q_OBJECT
     QML_ELEMENT
@@ -36,8 +36,8 @@ public:
 
     Q_ENUM(MiddleClickAction)
 
-    explicit Backend(QObject *parent = nullptr);
-    ~Backend() override;
+    explicit LaunchBackend(QObject *parent = nullptr);
+    ~LaunchBackend() override;
 
     Q_INVOKABLE QVariantList jumpListActions(const QUrl &launcherUrl, QObject *parent);
     Q_INVOKABLE void setActionGroup(QAction *action) const;

@@ -3,8 +3,8 @@ set(taskbarpager_source
         pagermodel.h
         windowmodel.cpp
         windowmodel.h
-        backend.cpp
-        backend.cpp
+        launchbackend.cpp
+        launchbackend.h
 )
 
 find_package(LibTaskManager REQUIRED)
