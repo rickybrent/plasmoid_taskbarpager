@@ -109,6 +109,23 @@ PlasmoidItem {
 		onWheel: wheel => { plasmoid.configuration.enableScrolling ? switchDesktop(wheel) : {} }
 	}
 
+	// catch drops between the gaps, but ignore them.
+	DropArea {
+        anchors.fill: parent
+        z: -100 
+
+        onEntered: (drag) => {
+            if (drag.source && drag.source.moveWindowToDesktopPage) {
+                drag.accept();
+            }
+        }
+        onPositionChanged: (drag) => {
+            if (drag.source && drag.source.moveWindowToDesktopPage) {
+                drag.accept();
+            }
+        }
+    }
+
 	preferredRepresentation: compactRepresentation
 	compactRepresentation: ReprLayout {
 		isFullRep: false

@@ -42,9 +42,10 @@ Rectangle {
 		text: numberText.text
 		font: numberText.font
 	}
-
-	implicitWidth: Math.max(textMet.width + 10, taskbarBox.height * (plasmoid.configuration.windowCountPerDesktop + 1) + 7)
-	implicitHeight: textMet.height + 6
+	property real longways: Math.max(textMet.width + 10, taskbarBox.height * (plasmoid.configuration.windowCountPerDesktop + 1) + 7)
+	property real shortways: textMet.height + 6
+	implicitWidth: plasmoid.formFactor === PlasmaCore.Types.Vertical ? shortways : longways
+	implicitHeight: plasmoid.formFactor === PlasmaCore.Types.Vertical ? longways : shortways
 
 	Rectangle {
 		id: windowIndicator
@@ -86,7 +87,7 @@ Rectangle {
 		columnSpacing: 4
 
 		readonly property int maxIconCount: Math.floor(Math.max(taskbarBox.height, taskbarBox.width) / taskBoxSize)
-		readonly property bool showIconsInColumn: taskbarBox.height > taskbarBox.width
+		readonly property bool showIconsInColumn: plasmoid.formFactor === PlasmaCore.Types.Vertical
 		readonly property bool showAllIcons: taskbarBox.taskWindows.length <= maxIconCount
 		readonly property int taskBoxSize: Math.min(taskbarBox.height, taskbarBox.width)
 
@@ -103,6 +104,7 @@ Rectangle {
 			property string appName: ""
 			property string title: ""
 			property bool isActive: false
+			property int sourcePage: -1
 
 			property bool isClosable: false
 			property bool isMovable: false
@@ -111,6 +113,9 @@ Rectangle {
 			property bool isMinimizable: false
 			property bool isMaximized: false
 			property bool isMaximizable: false
+
+			property var virtualDesktops: []
+			property string launcherUrlWithoutIcon: ""
 
 			property bool isFullScreen: false
 			property bool isFullScreenable: false
@@ -142,8 +147,16 @@ Rectangle {
 			property var toggleExcludeFromCapture
 			property var togglePinToAllDesktops
 
+			property var moveWindowToDesktopPage
+
 			height: tasksGrid.taskBoxSize
 			width: tasksGrid.taskBoxSize
+
+			Drag.active: iconMouseArea.drag.active
+			Drag.source: taskBoxRoot
+			Drag.hotSpot.x: width / 2
+			Drag.hotSpot.y: height / 2
+			z: iconMouseArea.drag.active ? 100 : 0
 
 			// Active task highlight: (TODO: make this configurable.)
 			Rectangle {
@@ -189,7 +202,12 @@ Rectangle {
 				id: iconMouseArea
 				anchors.fill: parent
 				acceptedButtons: Qt.LeftButton | Qt.MiddleButton | Qt.RightButton
-				
+
+				drag.target: taskBoxRoot
+				drag.axis: tasksGrid.showIconsInColumn ? Drag.YAxis : Drag.XAxis
+				property real dragStartX: 0
+				property real dragStartY: 0
+
 				onClicked: (mouse) => {
 					if (mouse.button === Qt.LeftButton) {
 						console.log("com.github.rickybrent.taskbarpager Left clicked: activate/focus", taskBoxRoot.appName, "-", taskBoxRoot.title);
@@ -210,8 +228,24 @@ Rectangle {
 						}
 					} else if (mouse.button === Qt.RightButton) {
 						console.log("com.github.rickybrent.taskbarpager Right clicked: context menu", taskBoxRoot.appName, "-", taskBoxRoot.title);
+						console.log("com.github.rickybrent.taskbarpager Right clicked:" + taskBoxRoot.launcherUrlWithoutIcon);
 						contextMenu.openRelative();
 					}
+				}
+
+				onPressed: {
+					taskbarBox.z = 100;
+					dragStartX = taskBoxRoot.x;
+					dragStartY = taskBoxRoot.y;				
+				}
+
+				onReleased: (mouse) => {
+					taskbarBox.z = 0;
+					if (taskBoxRoot.Drag.active) {
+						taskBoxRoot.Drag.drop();
+					}
+					taskBoxRoot.x = dragStartX;
+					taskBoxRoot.y = dragStartY;
 				}
 			}
 
@@ -254,6 +288,7 @@ Rectangle {
 				appName: modelData.appName || ""
 				title: modelData.title || ""
 				isActive: modelData.isActive || false
+				sourcePage: modelData.sourcePage
 				
 				isClosable: modelData.isClosable || false
 				isMovable: modelData.isMovable || false
@@ -262,6 +297,9 @@ Rectangle {
 				isMinimizable: modelData.isMinimizable || false
 				isMaximized: modelData.isMaximized || false
 				isMaximizable: modelData.isMaximizable || false
+
+				virtualDesktops: modelData.virtualDesktops || []
+				launcherUrlWithoutIcon: modelData.launcherUrlWithoutIcon
 
 				isFullScreen: modelData.isFullScreen || false
 				isFullScreenable: modelData.isFullScreenable || false
@@ -290,6 +328,7 @@ Rectangle {
 				toggleNoBorder: modelData.toggleNoBorder
 				toggleExcludeFromCapture: modelData.toggleExcludeFromCapture
 				togglePinToAllDesktops: modelData.togglePinToAllDesktops
+				moveWindowToDesktopPage: modelData.moveWindowToDesktopPage
 			}
 		}
 
