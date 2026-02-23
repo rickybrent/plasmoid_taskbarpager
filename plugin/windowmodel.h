@@ -25,6 +25,7 @@ public:
     
     Q_INVOKABLE void requestActivate(const QModelIndex &index) override;
     Q_INVOKABLE void requestClose(const QModelIndex &index) override;
+    Q_INVOKABLE void requestToggleMinimized(const QModelIndex &index) override;
 private Q_SLOTS:
     void onPagerItemSizeChanged();
 

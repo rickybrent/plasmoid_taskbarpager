@@ -115,6 +115,11 @@ void WindowModel::requestClose(const QModelIndex &index)
     TaskManager::TaskFilterProxyModel::requestClose(index);
 }
 
+void WindowModel::requestToggleMinimized(const QModelIndex &index)
+{
+    TaskManager::TaskFilterProxyModel::requestToggleMinimized(index);
+}
+
 void WindowModel::onPagerItemSizeChanged()
 {
     if (rowCount() > 0) {

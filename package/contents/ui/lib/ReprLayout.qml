@@ -173,6 +173,9 @@ GridLayout {
 						},
 						closeWindow: () => {
 							TasksModel.requestClose(TasksModel.index(i, 0));
+						},
+						minimizeWindow: () => {
+							TasksModel.requestToggleMinimized(TasksModel.index(i, 0));
 						}
 					});
 				}
