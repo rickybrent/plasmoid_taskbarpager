@@ -33,7 +33,6 @@ Rectangle {
 			plasmoid.configuration.fontColor : Kirigami.Theme.textColor
 	property bool showWindowIndicator: true
 	property list<var> iconSources: []
-	anchors.top: parent.top
 
 	border.width: plasmoid.configuration.displayBorder ? plasmoid.configuration.borderThickness : 0
 	radius: height > width ? height * (plasmoid.configuration.borderRadius / 100) : width * (plasmoid.configuration.borderRadius / 100)
@@ -65,7 +64,7 @@ Rectangle {
 	Text {
 		id: numberText
 		visible: plasmoid.configuration.stayVisible
-		anchors.left: parent
+		anchors.left: parent.left
 		anchors.verticalCenter: parent.verticalCenter
 		text: pagerModel.currentPage + 1
 		color: fontColor
@@ -86,11 +85,10 @@ Rectangle {
 		visible: plasmoid.configuration.showWindowIcons
 		columnSpacing: 4
 
-		readonly property int maxIconCount: Math.floor(Math.max(taskbarBox.height, taskbarBox.width) / iconSize)
+		readonly property int maxIconCount: Math.floor(Math.max(taskbarBox.height, taskbarBox.width) / boxIconSize)
 		readonly property bool showIconsInColumn: taskbarBox.height > taskbarBox.width
 		readonly property bool showAllIcons: taskbarBox.iconSources.length <= maxIconCount
-		readonly property int iconSize: Math.min(taskbarBox.height * 0.85, taskbarBox.width * 0.85)
-		readonly property int iconSize2: Math.min(taskbarBox.height, taskbarBox.width)
+		readonly property int boxIconSize: Math.min(taskbarBox.height, taskbarBox.width)
 
 		columns: (showIconsInColumn || !showAllIcons) ? 1 : maxIconCount
 		rows: (showIconsInColumn && showAllIcons) ? maxIconCount : 1
@@ -102,14 +100,53 @@ Rectangle {
 			property alias source: innerIcon.source
 			property string badgeText: "" 
 			property bool needsAttention: false
-			
-			height: iconGrid.iconSize
-			width: iconGrid.iconSize
+			property string appName: ""
+			property string title: ""
+			property bool isActive: false
+			property bool isMinimized: false
+
+			height: iconGrid.boxIconSize
+			width: iconGrid.boxIconSize
+			opacity: boxIconRoot.isMinimized ? 0.3 : 1.0
+
+			// Active task highlight: (TODO: make this configurable.)
+			Rectangle {
+				anchors.fill: parent
+				visible: boxIconRoot.isActive
+				readonly property color color_: Kirigami.Theme.highlightColor
+				color: Qt.rgba(color_.r, color_.g, color_.b, 0.3) 				
+			}
+
+			// Per-window tooltip.
+			PlasmaCore.ToolTipArea {
+				anchors.fill: parent
+				mainText: boxIconRoot.title
+				subText: boxIconRoot.appName
+				enabled: boxIconRoot.appName !== "" && boxIconRoot.title !== ""
+			}
 
 			Kirigami.Icon {
 				id: innerIcon
-				anchors.fill: parent
+        		width: parent.width * 0.8
+		        height: parent.height * 0.8
+				anchors.centerIn: parent
 				roundToIconSize: false
+			}
+
+			// MouseArea to handle clicks
+			MouseArea {
+				anchors.fill: parent
+				acceptedButtons: Qt.LeftButton | Qt.MiddleButton | Qt.RightButton
+				
+				onClicked: (mouse) => {
+					if (mouse.button === Qt.LeftButton) {
+						console.log("com.github.rickybrent.taskbarpager Left clicked: activate/focus", boxIconRoot.appName, "-", boxIconRoot.title);
+					} else if (mouse.button === Qt.MiddleButton) {
+						console.log("com.github.rickybrent.taskbarpager Middle clicked: close", boxIconRoot.appName, "-", boxIconRoot.title);
+					} else if (mouse.button === Qt.RightButton) {
+						console.log("com.github.rickybrent.taskbarpager Right clicked: context menu", boxIconRoot.appName, "-", boxIconRoot.title);
+					}
+				}
 			}
 
 			// Badge overlay (notification count, attention state)
@@ -148,6 +185,10 @@ Rectangle {
 				source: modelData.source
 				badgeText: modelData.badgeText
 				needsAttention: modelData.needsAttention || false
+				appName: modelData.appName || ""
+				title: modelData.title || ""
+				isActive: modelData.isActive || false
+				isMinimized: modelData.isMinimized || false
 			}
 		}
 

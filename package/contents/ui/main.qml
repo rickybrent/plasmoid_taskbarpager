@@ -38,10 +38,13 @@ import "./lib"
 
 PlasmoidItem {
 	id: root
-
 	Plasmoid.status: (pagerModel.shouldShowPager || plasmoid.configuration.stayVisible) ? PlasmaCore.Types.ActiveStatus : PlasmaCore.Types.HiddenStatus
 	Plasmoid.constraintHints: Plasmoid.CanFillArea
 	property int wheelDelta: 0
+
+	// Disable the main tooltip to handle per-task tooltips later.
+	toolTipMainText: ""
+	toolTipSubText: ""
 
 	function action_addDesktop() {
 		pagerModel.addDesktop();

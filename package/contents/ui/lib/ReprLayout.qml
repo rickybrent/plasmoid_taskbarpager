@@ -137,6 +137,9 @@ GridLayout {
 					property string title: model.display || ""
 					property string appName: model.AppName || ""
 					property bool needsAttention: model.IsDemandingAttention
+
+					property bool isActive: model.IsActive
+					property bool isMinimized: model.IsMinimized
 				}
 			}
 			
@@ -161,7 +164,9 @@ GridLayout {
 						title: taskProxy.title,
 						appName: taskProxy.appName,
 						badgeText: badgeString,
-						needsAttention: taskProxy.needsAttention
+						needsAttention: taskProxy.needsAttention,
+						isActive: taskProxy.isActive,
+						isMinimized: taskProxy.isMinimized
 					});
 				}
 				return result;
@@ -174,6 +179,7 @@ GridLayout {
 
 			MouseArea {
 				anchors.fill: parent
+				z: -1
 				onClicked: {
 					// when clicking on the desktop we're already on
 					if (model.index === pagerModel.currentPage) {
