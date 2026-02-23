@@ -147,6 +147,8 @@ GridLayout {
 					property bool isMaximized: model.IsMaximized
 					property bool isMaximizable: model.IsMaximizable
 
+					property var virtualDesktops: model.VirtualDesktops
+
 					property bool isFullScreen: model.IsFullScreen
 					property bool isFullScreenable: model.IsFullScreenable
 					property bool isShaded: model.IsShaded
@@ -156,13 +158,15 @@ GridLayout {
 					property bool canLaunchNewInstance: model.CanLaunchNewInstance
 					property bool isExcludedFromCapture: model.IsExcludedFromCapture
 					property bool isOnAllVirtualDesktops: model.IsOnAllVirtualDesktops
+					property bool isKeepAbove: model.IsKeepAbove
+					property bool isKeepBelow: model.IsKeepBelow
 				}
 			}
 			
 
 			showWindowIndicator: plasmoid.configuration.showWindowIndicator && proxyRepeater.count > 0
 
-			iconSources: {
+			taskWindows: {
 				const result = [];
 				for (let i = 0; i < proxyRepeater.count; i++) {
 					const taskProxy = proxyRepeater.itemAt(i);
@@ -191,6 +195,7 @@ GridLayout {
 						isMaximized: taskProxy.isMaximized,
 						isMaximizable: taskProxy.isMaximizable,
 
+						virtualDesktops: taskProxy.virtualDesktops,
 						isFullScreen: taskProxy.isFullScreen,
 						isFullScreenable: taskProxy.isFullScreenable,
 						isShaded: taskProxy.isShaded,
@@ -198,8 +203,11 @@ GridLayout {
 						hasNoBorder: taskProxy.hasNoBorder,
 						canSetNoBorder: taskProxy.canSetNoBorder,
 						canLaunchNewInstance: taskProxy.canLaunchNewInstance,
-						isExcludedFromCapture: taskProxy.IsExcludedFromCapture,
+						isExcludedFromCapture: taskProxy.isExcludedFromCapture,
 						isOnAllVirtualDesktops: taskProxy.isOnAllVirtualDesktops,
+						isKeepAbove: taskProxy.isKeepAbove,
+						isKeepBelow: taskProxy.isKeepBelow,
+
 
 						activateWindow: () => {
 							pagerModel.changePage(index); 
@@ -225,9 +233,11 @@ GridLayout {
 							TasksModel.requestNewInstance(TasksModel.index(i, 0));
 						},
 						resize: () => {
+							// Interactive window resize.
 							TasksModel.requestResize(TasksModel.index(i, 0));
 						},
 						move: () => {
+							// Interactive window move.
 							TasksModel.requestMove(TasksModel.index(i, 0));
 						},
 						toggleFullScreen: () => {
@@ -243,8 +253,9 @@ GridLayout {
 							TasksModel.requestToggleExcludeFromCapture(TasksModel.index(i, 0));
 						},
 						togglePinToAllDesktops: () => {
+							console.log('com.github.rickybrent.taskbarpager togglePinToAllDesktops ' + index + taskProxy.virtualDesktops);
 							if (taskProxy.isOnAllVirtualDesktops) {
-								TasksModel.requestVirtualDesktops(TasksModel.index(i, 0), [index]);
+								TasksModel.requestVirtualDesktopByPage(TasksModel.index(i, 0), index);
 							} else {
 								TasksModel.requestVirtualDesktops(TasksModel.index(i, 0), []);
 							}

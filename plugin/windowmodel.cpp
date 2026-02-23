@@ -2,6 +2,7 @@
 #include "pagermodel.h"
 
 #include <taskmanager/abstracttasksmodel.h>
+#include <taskmanager/virtualdesktopinfo.h>
 
 #include <QGuiApplication>
 #include <QMetaEnum>
@@ -173,6 +174,18 @@ void WindowModel::requestToggleExcludeFromCapture(const QModelIndex &index)
 void WindowModel::requestVirtualDesktops(const QModelIndex &index, const QVariantList &desktops)
 {
     TaskManager::TaskFilterProxyModel::requestVirtualDesktops(index, desktops);
+}
+
+void WindowModel::requestVirtualDesktopByPage(const QModelIndex &index, int page)
+{
+    TaskManager::VirtualDesktopInfo info;
+    const QVariantList desktopIds = info.desktopIds();
+    
+    // Ensure the page requested is within the bounds of available desktops
+    if (page >= 0 && page < desktopIds.count()) {
+        // Pass the mapped virtual desktop ID to the proxy model
+        TaskManager::TaskFilterProxyModel::requestVirtualDesktops(index, {desktopIds.at(page)});
+    }
 }
 
 void WindowModel::requestNewVirtualDesktop(const QModelIndex &index)

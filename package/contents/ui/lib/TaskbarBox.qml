@@ -32,7 +32,7 @@ Rectangle {
 	property color fontColor: plasmoid.configuration.fontColorChecked ? 
 			plasmoid.configuration.fontColor : Kirigami.Theme.textColor
 	property bool showWindowIndicator: true
-	property list<var> iconSources: []
+	property list<var> taskWindows: []
 
 	border.width: plasmoid.configuration.displayBorder ? plasmoid.configuration.borderThickness : 0
 	radius: height > width ? height * (plasmoid.configuration.borderRadius / 100) : width * (plasmoid.configuration.borderRadius / 100)
@@ -79,23 +79,23 @@ Rectangle {
 	}
 
 	Grid {
-		id: iconGrid
+		id: tasksGrid
 		anchors.left: numberText.right
 		anchors.verticalCenter: parent.verticalCenter
 		visible: plasmoid.configuration.showWindowIcons
 		columnSpacing: 4
 
-		readonly property int maxIconCount: Math.floor(Math.max(taskbarBox.height, taskbarBox.width) / boxIconSize)
+		readonly property int maxIconCount: Math.floor(Math.max(taskbarBox.height, taskbarBox.width) / taskBoxSize)
 		readonly property bool showIconsInColumn: taskbarBox.height > taskbarBox.width
-		readonly property bool showAllIcons: taskbarBox.iconSources.length <= maxIconCount
-		readonly property int boxIconSize: Math.min(taskbarBox.height, taskbarBox.width)
+		readonly property bool showAllIcons: taskbarBox.taskWindows.length <= maxIconCount
+		readonly property int taskBoxSize: Math.min(taskbarBox.height, taskbarBox.width)
 
 		columns: (showIconsInColumn || !showAllIcons) ? 1 : maxIconCount
 		rows: (showIconsInColumn && showAllIcons) ? maxIconCount : 1
 		flow: showIconsInColumn ? Grid.TopToBottom : Grid.LeftToRight
 
-		component BoxIcon: Item {
-			id: boxIconRoot
+		component TaskBox: Item {
+			id: taskBoxRoot
 			
 			property alias source: innerIcon.source
 			property string badgeText: "" 
@@ -120,7 +120,11 @@ Rectangle {
 			property bool canSetNoBorder: false
 			property bool canLaunchNewInstance: false
 			property bool isExcludedFromCapture: false
+			property bool canExcludeFromCapture: true // Not a real property, will make configurable later.
 			property bool isOnAllVirtualDesktops: false
+			property bool isKeepAbove: false
+			property bool isKeepBelow: false
+
 
 			property var activateWindow
 			property var closeWindow
@@ -138,13 +142,13 @@ Rectangle {
 			property var toggleExcludeFromCapture
 			property var togglePinToAllDesktops
 
-			height: iconGrid.boxIconSize
-			width: iconGrid.boxIconSize
+			height: tasksGrid.taskBoxSize
+			width: tasksGrid.taskBoxSize
 
 			// Active task highlight: (TODO: make this configurable.)
 			Rectangle {
 				anchors.fill: parent
-				visible: boxIconRoot.isActive
+				visible: taskBoxRoot.isActive
 				readonly property color color_: Kirigami.Theme.highlightColor
 				color: Qt.rgba(color_.r, color_.g, color_.b, 0.3) 				
 			}
@@ -160,9 +164,9 @@ Rectangle {
 			PlasmaCore.ToolTipArea {
 				id: tooltipArea
 				anchors.fill: parent
-				mainText: boxIconRoot.title
-				subText: boxIconRoot.appName
-				enabled: boxIconRoot.appName !== "" && boxIconRoot.title !== ""
+				mainText: taskBoxRoot.title
+				subText: taskBoxRoot.appName
+				enabled: taskBoxRoot.appName !== "" && taskBoxRoot.title !== ""
 			}
 
 			Kirigami.Icon {
@@ -170,19 +174,14 @@ Rectangle {
         		width: parent.width * 0.8
 		        height: parent.height * 0.8
 				anchors.centerIn: parent
-				opacity: boxIconRoot.isMinimized ? 0.4 : 1.0
+				opacity: taskBoxRoot.isMinimized ? 0.4 : 1.0
 				roundToIconSize: false
 			}
 
 			TaskContextMenu {
 				id: contextMenu
-				visualParent: boxIconRoot 
-				
-				isMinimized: boxIconRoot.isMinimized
-				isMaximized: boxIconRoot.isMaximized
-				minimizeWindow: boxIconRoot.minimizeWindow
-				maximizeWindow: boxIconRoot.maximizeWindow
-				closeWindow: boxIconRoot.closeWindow
+				visualParent: taskBoxRoot 
+				taskBox: taskBoxRoot
 			}
 
 			// MouseArea to handle clicks
@@ -193,24 +192,24 @@ Rectangle {
 				
 				onClicked: (mouse) => {
 					if (mouse.button === Qt.LeftButton) {
-						console.log("com.github.rickybrent.taskbarpager Left clicked: activate/focus", boxIconRoot.appName, "-", boxIconRoot.title);
-						if (boxIconRoot.isActive) {
-							if (boxIconRoot.minimizeWindow) {
-								boxIconRoot.minimizeWindow();
+						console.log("com.github.rickybrent.taskbarpager Left clicked: activate/focus", taskBoxRoot.appName, "-", taskBoxRoot.title);
+						if (taskBoxRoot.isActive) {
+							if (taskBoxRoot.minimizeWindow) {
+								taskBoxRoot.minimizeWindow();
 								console.log("com.github.rickybrent.taskbarpager min")
 							}
 						} else {
-							if (boxIconRoot.activateWindow) {
-								boxIconRoot.activateWindow();
+							if (taskBoxRoot.activateWindow) {
+								taskBoxRoot.activateWindow();
 							}
 						}
 					} else if (mouse.button === Qt.MiddleButton) {
-						console.log("com.github.rickybrent.taskbarpager Middle clicked: close", boxIconRoot.appName, "-", boxIconRoot.title);
-						if (boxIconRoot.closeWindow) {
-							boxIconRoot.closeWindow();
+						console.log("com.github.rickybrent.taskbarpager Middle clicked: close", taskBoxRoot.appName, "-", taskBoxRoot.title);
+						if (taskBoxRoot.closeWindow) {
+							taskBoxRoot.closeWindow();
 						}
 					} else if (mouse.button === Qt.RightButton) {
-						console.log("com.github.rickybrent.taskbarpager Right clicked: context menu", boxIconRoot.appName, "-", boxIconRoot.title);
+						console.log("com.github.rickybrent.taskbarpager Right clicked: context menu", taskBoxRoot.appName, "-", taskBoxRoot.title);
 						contextMenu.openRelative();
 					}
 				}
@@ -219,7 +218,7 @@ Rectangle {
 			// Badge overlay (notification count, attention state)
 			Rectangle {
 				id: badge
-				visible: boxIconRoot.badgeText !== ""
+				visible: taskBoxRoot.badgeText !== ""
 				
 				anchors.right: parent.right
 				anchors.bottom: parent.bottom
@@ -228,14 +227,14 @@ Rectangle {
 				width: Math.max(height, badgeLabel.implicitWidth + 4)
 				radius: height / 2
 				
-				color: boxIconRoot.isDemandingAttention ? Kirigami.Theme.neutralTextColor : Kirigami.Theme.highlightColor
+				color: taskBoxRoot.isDemandingAttention ? Kirigami.Theme.neutralTextColor : Kirigami.Theme.highlightColor
 				border.color: Kirigami.Theme.backgroundColor
 				border.width: 1
 
 				Text {
 					id: badgeLabel
 					anchors.centerIn: parent
-					text: boxIconRoot.badgeText
+					text: taskBoxRoot.badgeText
 					horizontalAlignment: Text.AlignHCenter
 					verticalAlignment: Text.AlignVCenter
 					color: Kirigami.Theme.highlightedTextColor
@@ -246,9 +245,9 @@ Rectangle {
 		}
 
 		Repeater {
-			model: taskbarBox.iconSources
-			BoxIcon {
-				visible: iconGrid.showAllIcons
+			model: taskbarBox.taskWindows
+			TaskBox {
+				visible: tasksGrid.showAllIcons
 				source: modelData.source
 				badgeText: modelData.badgeText
 				isDemandingAttention: modelData.isDemandingAttention || false
@@ -271,8 +270,10 @@ Rectangle {
 				hasNoBorder: modelData.hasNoBorder || false
 				canSetNoBorder: modelData.canSetNoBorder || false
 				canLaunchNewInstance: modelData.canLaunchNewInstance || false
-				isExcludedFromCapture: modelData.IsExcludedFromCapture || false
+				isExcludedFromCapture: modelData.isExcludedFromCapture || false
 				isOnAllVirtualDesktops: modelData.isOnAllVirtualDesktops || false
+				isKeepAbove: modelData.isKeepAbove || false
+				isKeepBelow: modelData.isKeepBelow || false
 
 				activateWindow: modelData.activateWindow
 				closeWindow: modelData.closeWindow
@@ -292,9 +293,9 @@ Rectangle {
 			}
 		}
 
-		BoxIcon {
-			visible: !iconGrid.showAllIcons
-			source: iconGrid.showIconsInColumn ? "view-more-symbolic" : "view-more-horizontal-symbolic"
+		TaskBox {
+			visible: !tasksGrid.showAllIcons
+			source: tasksGrid.showIconsInColumn ? "view-more-symbolic" : "view-more-horizontal-symbolic"
 		}
 	}
 
