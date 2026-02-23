@@ -83,7 +83,6 @@ GridLayout {
 		}
 	}
 
-
 	columns: {
 		let cols = modelColumns()
 
@@ -148,6 +147,7 @@ GridLayout {
 					property bool isMaximizable: model.IsMaximizable
 
 					property var virtualDesktops: model.VirtualDesktops
+					property string launcherUrlWithoutIcon: model.LauncherUrlWithoutIcon || ""
 
 					property bool isFullScreen: model.IsFullScreen
 					property bool isFullScreenable: model.IsFullScreenable
@@ -186,6 +186,7 @@ GridLayout {
 						badgeText: badgeString,
 						isDemandingAttention: taskProxy.isDemandingAttention,
 						isActive: taskProxy.isActive,
+						sourcePage: index,
 
 						isClosable: taskProxy.isClosable,
 						isMovable: taskProxy.isMovable,
@@ -196,6 +197,8 @@ GridLayout {
 						isMaximizable: taskProxy.isMaximizable,
 
 						virtualDesktops: taskProxy.virtualDesktops,
+						launcherUrlWithoutIcon: taskProxy.launcherUrlWithoutIcon,
+
 						isFullScreen: taskProxy.isFullScreen,
 						isFullScreenable: taskProxy.isFullScreenable,
 						isShaded: taskProxy.isShaded,
@@ -255,11 +258,14 @@ GridLayout {
 						togglePinToAllDesktops: () => {
 							console.log('com.github.rickybrent.taskbarpager togglePinToAllDesktops ' + index + taskProxy.virtualDesktops);
 							if (taskProxy.isOnAllVirtualDesktops) {
-								TasksModel.requestVirtualDesktopByPage(TasksModel.index(i, 0), index);
+								TasksModel.requestVirtualDesktopPage(TasksModel.index(i, 0), index);
 							} else {
 								TasksModel.requestVirtualDesktops(TasksModel.index(i, 0), []);
 							}
 						},
+						moveWindowToDesktopPage: (page) => {
+							TasksModel.requestVirtualDesktopPage(TasksModel.index(i, 0), page);
+						}
 					});
 				}
 				return result;
@@ -296,6 +302,21 @@ GridLayout {
 					} else {
 						pagerModel.changePage(model.index)
 						root.expanded = false
+					}
+				}
+			}
+
+			DropArea {
+				anchors.fill: parent
+				onDropped: (drop) => {
+					console.log('com.github.rickybrent.taskbarpager drop'+index);
+					if (drop.source && drop.source.moveWindowToDesktopPage) {
+						console.log("com.github.rickybrent.taskbarpager early stop "+drop.source.sourcePage);
+						if (drop.source.sourcePage !== index) {
+							drop.source.visible = false
+						}
+						drop.source.moveWindowToDesktopPage(index);
+						drop.accept();
 					}
 				}
 			}

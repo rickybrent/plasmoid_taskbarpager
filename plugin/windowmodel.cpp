@@ -176,7 +176,7 @@ void WindowModel::requestVirtualDesktops(const QModelIndex &index, const QVarian
     TaskManager::TaskFilterProxyModel::requestVirtualDesktops(index, desktops);
 }
 
-void WindowModel::requestVirtualDesktopByPage(const QModelIndex &index, int page)
+void WindowModel::requestVirtualDesktopPage(const QModelIndex &index, int page)
 {
     TaskManager::VirtualDesktopInfo info;
     const QVariantList desktopIds = info.desktopIds();

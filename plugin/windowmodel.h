@@ -37,7 +37,7 @@ public:
     Q_INVOKABLE void requestToggleNoBorder(const QModelIndex &index) override;
     Q_INVOKABLE void requestToggleExcludeFromCapture(const QModelIndex &index) override;
     Q_INVOKABLE void requestVirtualDesktops(const QModelIndex &index, const QVariantList &desktops) override;
-    Q_INVOKABLE void requestVirtualDesktopByPage(const QModelIndex &index, int page);
+    Q_INVOKABLE void requestVirtualDesktopPage(const QModelIndex &index, int page);
     Q_INVOKABLE void requestNewVirtualDesktop(const QModelIndex &index) override;
 
 private Q_SLOTS:
