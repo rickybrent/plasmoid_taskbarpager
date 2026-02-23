@@ -43,9 +43,9 @@ GridLayout {
 	property color bgColor: plasmoid.configuration.inactiveBgColorChecked ?
 		plasmoid.configuration.inactiveBgColor :
 		Qt.rgba(
-			Math.max(0, bgColorHighlight.r * 0.65),
-			Math.max(0, bgColorHighlight.g * 0.65),
-			Math.max(0, bgColorHighlight.b * 0.65),
+			Math.max(0, bgColorHighlight.r * 0.5),
+			Math.max(0, bgColorHighlight.g * 0.5),
+			Math.max(0, bgColorHighlight.b * 0.5),
 			bgColorHighlight.a
 		)
 	property color bgColorWithoutWindows: plasmoid.configuration.inactiveBgColorWithoutWindowsChecked ?
@@ -136,10 +136,11 @@ GridLayout {
 					property var iconSource: model.decoration
 					property string title: model.display || ""
 					property string appName: model.AppName || ""
-					property bool needsAttention: model.IsDemandingAttention
+					property bool isDemandingAttention: model.IsDemandingAttention
 
 					property bool isActive: model.IsActive
 					property bool isMinimized: model.IsMinimized
+					property bool isMaximized: model.IsMaximized
 				}
 			}
 			
@@ -156,7 +157,7 @@ GridLayout {
 						badgeString = numberMatch[1];
 					} else if (taskProxy.title.startsWith("•") || taskProxy.title.endsWith("•")) {
 						badgeString = "•";
-					} else if (taskProxy.needsAttention) {
+					} else if (taskProxy.isDemandingAttention) {
 						badgeString = "!";
 					}
 					result.push({
@@ -164,7 +165,7 @@ GridLayout {
 						title: taskProxy.title,
 						appName: taskProxy.appName,
 						badgeText: badgeString,
-						needsAttention: taskProxy.needsAttention,
+						isDemandingAttention: taskProxy.isDemandingAttention,
 						isActive: taskProxy.isActive,
 						isMinimized: taskProxy.isMinimized,
 						activateWindow: () => {

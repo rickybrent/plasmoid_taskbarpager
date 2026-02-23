@@ -120,6 +120,67 @@ void WindowModel::requestToggleMinimized(const QModelIndex &index)
     TaskManager::TaskFilterProxyModel::requestToggleMinimized(index);
 }
 
+void WindowModel::requestToggleMaximized(const QModelIndex &index)
+{
+    TaskManager::TaskFilterProxyModel::requestToggleMaximized(index);
+}
+
+void WindowModel::requestToggleKeepAbove(const QModelIndex &index)
+{
+    TaskManager::TaskFilterProxyModel::requestToggleKeepAbove(index);
+}
+
+void WindowModel::requestToggleKeepBelow(const QModelIndex &index)
+{
+    TaskManager::TaskFilterProxyModel::requestToggleKeepBelow(index);
+}
+
+void WindowModel::requestNewInstance(const QModelIndex &index)
+{
+    TaskManager::TaskFilterProxyModel::requestNewInstance(index);
+}
+
+void WindowModel::requestResize(const QModelIndex &index)
+{
+    TaskManager::TaskFilterProxyModel::requestResize(index);
+}
+
+void WindowModel::requestMove(const QModelIndex &index)
+{
+    TaskManager::TaskFilterProxyModel::requestMove(index);
+}
+
+void WindowModel::requestToggleFullScreen(const QModelIndex &index)
+{
+    TaskManager::TaskFilterProxyModel::requestToggleFullScreen(index);
+}
+
+void WindowModel::requestToggleShaded(const QModelIndex &index)
+{
+    TaskManager::TaskFilterProxyModel::requestToggleShaded(index);
+}
+
+void WindowModel::requestToggleNoBorder(const QModelIndex &index)
+{
+    TaskManager::TaskFilterProxyModel::requestToggleNoBorder(index);
+}
+
+void WindowModel::requestToggleExcludeFromCapture(const QModelIndex &index)
+{
+    TaskManager::TaskFilterProxyModel::requestToggleExcludeFromCapture(index);
+}
+
+void WindowModel::requestVirtualDesktops(const QModelIndex &index, const QVariantList &desktops)
+{
+    TaskManager::TaskFilterProxyModel::requestVirtualDesktops(index, desktops);
+}
+
+void WindowModel::requestNewVirtualDesktop(const QModelIndex &index)
+{
+    TaskManager::TaskFilterProxyModel::requestNewVirtualDesktop(index);
+}
+
+
 void WindowModel::onPagerItemSizeChanged()
 {
     if (rowCount() > 0) {

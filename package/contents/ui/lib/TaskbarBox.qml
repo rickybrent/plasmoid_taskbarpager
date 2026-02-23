@@ -99,7 +99,7 @@ Rectangle {
 			
 			property alias source: innerIcon.source
 			property string badgeText: "" 
-			property bool needsAttention: false
+			property bool isDemandingAttention: false
 			property string appName: ""
 			property string title: ""
 			property bool isActive: false
@@ -121,13 +121,14 @@ Rectangle {
 			// Hovered task highlight:
 			Rectangle {
 				anchors.fill: parent
-				visible: iconMouseArea.containsMouse
+				visible: tooltipArea.containsMouse
 				readonly property color color_: Kirigami.Theme.highlightColor
 				color: Qt.rgba(color_.r, color_.g, color_.b, 0.2) 				
 			}
 
-			// Per-window tooltip.
+			// Per-window tooltip (and hover events).
 			PlasmaCore.ToolTipArea {
+				id: tooltipArea
 				anchors.fill: parent
 				mainText: boxIconRoot.title
 				subText: boxIconRoot.appName
@@ -148,7 +149,6 @@ Rectangle {
 				id: iconMouseArea
 				anchors.fill: parent
 				acceptedButtons: Qt.LeftButton | Qt.MiddleButton | Qt.RightButton
-				hoverEnabled: true
 				
 				onClicked: (mouse) => {
 					if (mouse.button === Qt.LeftButton) {
@@ -186,7 +186,7 @@ Rectangle {
 				width: Math.max(height, badgeLabel.implicitWidth + 4)
 				radius: height / 2
 				
-				color: boxIconRoot.needsAttention ? Kirigami.Theme.neutralTextColor : Kirigami.Theme.highlightColor
+				color: boxIconRoot.isDemandingAttention ? Kirigami.Theme.neutralTextColor : Kirigami.Theme.highlightColor
 				border.color: Kirigami.Theme.backgroundColor
 				border.width: 1
 
@@ -209,7 +209,7 @@ Rectangle {
 				visible: iconGrid.showAllIcons
 				source: modelData.source
 				badgeText: modelData.badgeText
-				needsAttention: modelData.needsAttention || false
+				isDemandingAttention: modelData.isDemandingAttention || false
 				appName: modelData.appName || ""
 				title: modelData.title || ""
 				isActive: modelData.isActive || false
