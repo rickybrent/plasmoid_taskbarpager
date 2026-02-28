@@ -5,6 +5,11 @@ Instead of a standard abstract pager, this applet displays multiple "taskbars", 
 
 Likely requires Plasma 6.6 or later.
 
+### Full layout
+![Full layout](https://raw.githubusercontent.com/rickybrent/plasmoid_taskbarpager/master/docs/images/full.png?raw=true)
+### Compact layout
+![Compact layout](https://raw.githubusercontent.com/rickybrent/plasmoid_taskbarpager/master/docs/images/compact.png?raw=true)
+
 ## Features
 
 * **Per-Virtual Desktop Taskbars:** The main one: quickly see exactly which windows are open on which virtual desktop.
@@ -80,8 +85,8 @@ Clone the repository and choose one of the following scripts:
 
 # Other Projects / Credits
 
-This project was originally forked from (compact_pager)[https://github.com/tilorenz/compact_pager] -- well worth checking out if you'd like something that doesn't take up quite so much room on the panel.
+This project was originally forked from [compact_pager](https://github.com/tilorenz/compact_pager) -- well worth checking out if you'd like something that doesn't take up quite so much room on the panel.
 
-Most of the C++ backend plugin work (as well as the compilation instructions and installation scripts above) were based on (kara)[https://github.com/dhruv8sh/kara], a beautifully customizable pager.
+Most of the C++ backend plugin work (as well as the compilation instructions and installation scripts above) were based on [kara](https://github.com/dhruv8sh/kara), a beautifully customizable pager.
 
-Finally, the launcher and dynamic context menu code was adapted from the (Icons-and-Text Task Manager)[https://github.com/KDE/plasma-desktop/tree/master/applets/taskmanager] from Plasma desktop.
+Finally, the launcher and dynamic context menu code was adapted from the [Icons-and-Text Task Manager](https://github.com/KDE/plasma-desktop/tree/master/applets/taskmanager) from Plasma desktop.
