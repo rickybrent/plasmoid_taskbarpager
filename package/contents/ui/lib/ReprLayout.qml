@@ -170,6 +170,18 @@ GridLayout {
 				const result = [];
 				for (let i = 0; i < proxyRepeater.count; i++) {
 					const taskProxy = proxyRepeater.itemAt(i);
+					if (taskProxy.isOnAllVirtualDesktops) {
+						if (plasmoid.configuration.pinnedWindowBehavior === 1 && index !== pagerModel.currentPage) {
+							continue;
+						}
+						if (plasmoid.configuration.pinnedWindowBehavior === 2 && index >= 0) {
+							continue; 
+						}
+					} else {
+						if (index === -1) {
+							continue;
+						}
+					}	
 					let badgeString = "";
 					const numberMatch = taskProxy.title.match(/\((\d+)\)/);
 					if (numberMatch) {

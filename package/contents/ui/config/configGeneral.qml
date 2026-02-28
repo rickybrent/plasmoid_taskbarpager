@@ -38,7 +38,7 @@ KCM.SimpleKCM {
 	property alias cfg_showWindowIcons: showWindowIcons.checked
 	property alias cfg_showOnlyCurrentScreen: showOnlyCurrentScreen.checked
 	property alias cfg_windowCountPerDesktop: windowCountPerDesktop.value
-
+	property alias cfg_pinnedWindowBehavior: pinnedWindowBehaviorBox.currentIndex
 
 	Kirigami.FormLayout {
 		id: layoutGeneral
@@ -142,5 +142,15 @@ KCM.SimpleKCM {
 			to: 10
 			stepSize: 1
 		}
+
+		Item {
+			Kirigami.FormData.isSection: true
+		}
+
+		QtControls.ComboBox {
+			id: pinnedWindowBehaviorBox
+			Kirigami.FormData.label: i18n("Windows on all desktops:")
+			model: [i18n("Show on all desktops"), i18n("Show only on active desktop"), i18n("Show in dedicated Pin section")]
+		}		
 	}
 }

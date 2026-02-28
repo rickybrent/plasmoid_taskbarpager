@@ -72,8 +72,8 @@ Rectangle {
 		anchors.verticalCenter: parent.verticalCenter
 		text: pagerModel.currentPage + 1
 		color: fontColor
-		leftPadding: 5
-		rightPadding: 5
+		leftPadding: 8
+		rightPadding: 8
 		font {
 			family: plasmoid.configuration.fontFamily || Kirigami.Theme.defaultFont.family
 			bold: plasmoid.configuration.fontBold

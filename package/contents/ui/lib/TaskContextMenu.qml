@@ -178,7 +178,7 @@ PlasmaExtras.Menu {
     }
         
     PlasmaExtras.MenuItem {
-        text: taskBox.hasNoBorder ? "Set Titlebar" : "No Titlebar"
+        text: taskBox.hasNoBorder ? "Show Titlebar && Frame" : "No Titlebar && Frame"
         icon: taskBox.hasNoBorder ? "window" : "checkbox-symbolic"
         visible: taskBox.canSetNoBorder
         onClicked: {
@@ -202,7 +202,7 @@ PlasmaExtras.Menu {
 
     PlasmaExtras.MenuItem {
         text: taskBox.isExcludedFromCapture ? "Show in ScreenCasts" : "Hide from ScreenCasts"
-        icon: taskBox.isExcludedFromCapture ? "camera-symbolic" : "camera-disabled-symbolic"
+        icon: taskBox.isExcludedFromCapture ? "camera-symbolic" : "view-private-symbolic"
         visible: taskBox.canExcludeFromCapture
         onClicked: {
             if (taskBox.toggleExcludeFromCapture) {
