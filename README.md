@@ -58,7 +58,7 @@ sudo apt-get -y install cmake build-essential \
 ```
 sudo apt-get -y install cmake build-essential \
   qt6-declarative-dev extra-cmake-modules \
-  qt6-base-dev libkf6i18n-dev libkf6service-dev \
+  qt6-base-dev libkf6i18n-dev libkf6service-dev libkf6kio-dev \
   libkf6windowsystem-dev plasma-workspace-dev libkf6activities-dev \
   kwin-dev pkg-config libdrm-dev gettext
 ```
