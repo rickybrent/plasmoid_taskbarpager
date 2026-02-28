@@ -38,6 +38,7 @@ KCM.SimpleKCM {
 	property alias cfg_compactShowInactive: compactShowInactive.checked // NEW
 	property alias cfg_windowCountPerDesktop: windowCountPerDesktop.value
 	property alias cfg_pinnedWindowBehavior: pinnedWindowBehaviorBox.currentIndex
+	property alias cfg_taskSort: taskSort.currentIndex
 
 	Kirigami.FormLayout {
 		id: layoutGeneral
@@ -121,6 +122,20 @@ KCM.SimpleKCM {
 		QtControls.CheckBox {
 			id: actionOnCompactLayout
 			text: i18n("Directly do selected action in compact layout\ninstead of expanding full layout")
+		}
+
+		Item {
+			Kirigami.FormData.isSection: true
+		}
+
+		QtControls.ComboBox {
+			id: taskSort
+			Kirigami.FormData.label: i18n("Window order:")
+			model: [i18n("Do not sort"), i18n("Manually"), i18n("Alphabetically"), i18n("By horizontal window position",  i18n("By vertical window position")]
+		}
+
+		Item {
+			Kirigami.FormData.isSection: true
 		}
 
 		QtControls.SpinBox {

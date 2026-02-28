@@ -173,6 +173,7 @@ GridLayout {
 					isOnAllVirtualDesktops: taskProxy.isOnAllVirtualDesktops,
 					isKeepAbove: taskProxy.isKeepAbove,
 					isKeepBelow: taskProxy.isKeepBelow,
+					geometry: taskProxy.geometry,
 
 					activateWindow: () => {
 						pagerModel.changePage(pageIndex);
@@ -228,6 +229,34 @@ GridLayout {
 					}
 				});
 			}
+
+			switch (plasmoid.configuration.taskSort) {
+				case 2: // Alphabetical
+					result.sort((a, b) => {
+						// Fallback to title if appName is empty
+						let nameA = (a.appName || a.title || "").toLowerCase();
+						let nameB = (b.appName || b.title || "").toLowerCase();
+						return nameA.localeCompare(nameB);
+					});
+					break;
+				case 3: // Horizontal window position (vertical breaks ties)
+					result.sort((a, b) => {
+						if (a.geometry.x === b.geometry.x) {
+							return a.geometry.y - b.geometry.y;
+						}
+						return a.geometry.x - b.geometry.x;
+					});
+					break;
+				case 4: // Vertical window position (horizontal breaks ties)
+					result.sort((a, b) => {
+						if (a.geometry.y === b.geometry.y) {
+							return a.geometry.x - b.geometry.x;
+						}
+						return a.geometry.y - b.geometry.y;
+					});
+					break;
+				// case 0 (Do not sort) and case 1 (Manual): 
+			}
 			return result;
 		}
 
@@ -264,6 +293,7 @@ GridLayout {
 				property bool isOnAllVirtualDesktops: model.IsOnAllVirtualDesktops
 				property bool isKeepAbove: model.IsKeepAbove
 				property bool isKeepBelow: model.IsKeepBelow
+				property rect geometry: model.Geometry || Qt.rect(0,0,0,0) 
 			}
 		}
 	}
@@ -272,7 +302,7 @@ GridLayout {
 	TaskbarBox {
 		id: pinnedBox
 		visible: plasmoid.configuration.pinnedWindowBehavior === 2
-		text: plasmoid.configuration.desktopLabels === 0 ? " -" : "🖈"
+		text: plasmoid.configuration.desktopLabels === 0 ? "" : "🖈"
 		customIcon: plasmoid.configuration.desktopLabels === 0 ? "" :  "window-pin"
 		
 		

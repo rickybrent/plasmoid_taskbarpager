@@ -72,6 +72,16 @@
 			</choices>
 			<default>0</default>
 		</entry>
+		<entry name="taskSort" type="Enum">
+			<label>Sort windows by:</label>
+			<choices>
+				<choice name="DoNotSort"/>
+				<choice name="Manual"/>
+				<choice name="Alphabetical"/>
+				<choice name="Horizontal"/>
+			</choices>
+			<default>0</default>
+		</entry>
 	</group>
 
 	<group name="Appearance">
