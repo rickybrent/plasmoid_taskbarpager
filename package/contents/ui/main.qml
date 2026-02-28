@@ -38,7 +38,7 @@ import "./lib"
 
 PlasmoidItem {
 	id: root
-	Plasmoid.status: (pagerModel.shouldShowPager || plasmoid.configuration.stayVisible) ? PlasmaCore.Types.ActiveStatus : PlasmaCore.Types.HiddenStatus
+	Plasmoid.status: PlasmaCore.Types.ActiveStatus
 	Plasmoid.constraintHints: Plasmoid.CanFillArea
 	property int wheelDelta: 0
 
@@ -141,7 +141,6 @@ PlasmoidItem {
 
 		showDesktop: (plasmoid.configuration.currentDesktopSelected === 1)
 
-		showOnlyCurrentScreen: plasmoid.configuration.showOnlyCurrentScreen
 		screenGeometry: root.screenGeometry
 
 		pagerType: PagerMod.PagerModel.VirtualDesktops

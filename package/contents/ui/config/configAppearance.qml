@@ -49,8 +49,6 @@ KCM.SimpleKCM {
 	property alias cfg_inactiveBgColor: inactiveBgColorValue.color
 	property alias cfg_inactiveBgColorWithoutWindowsChecked: fixedInactiveBGColorWithoutWindows.checked
 	property alias cfg_inactiveBgColorWithoutWindows: inactiveBgColorWithoutWindowsValue.color
-	property alias cfg_showWindowIndicator: showWindowIndicator.checked
-	property alias cfg_windowIndicatorRadius: windowIndicatorRadius.value
 
 	Kirigami.FormLayout {
 		id: layoutAppearance
@@ -268,25 +266,6 @@ KCM.SimpleKCM {
 				showAlphaChannel: true
 				enabled: fixedInactiveBGColorWithoutWindows.checked
 			}
-		}
-
-		Kirigami.Separator {
-			Kirigami.FormData.isSection: true
-			Kirigami.FormData.label: i18n("Window Indicator")
-		}
-
-		QtControls.CheckBox {
-			id: showWindowIndicator
-			Kirigami.FormData.label: i18n("Show window indicator:")
-		}
-
-		QtControls.SpinBox {
-			id: windowIndicatorRadius
-			enabled: showWindowIndicator.checked
-			Kirigami.FormData.label: i18n("Window indicator border radius (%):")
-			from: 0
-			to: 100
-			stepSize: 1
 		}
 	}
 }

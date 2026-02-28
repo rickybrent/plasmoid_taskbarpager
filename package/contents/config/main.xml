@@ -6,22 +6,6 @@
 <kcfgfile name=""/>
 
 	<group name="General">
-		<entry name="showDesktopNames" type="Bool">
-			<label>Show Desktop names rather than numbers</label>
-			<default>false</default>
-		</entry>
-		<entry name="showWindowIcons" type="Bool">
-			<label>Show window icons rather than numbers</label>
-			<default>true</default>
-		</entry>
-		<entry name="showOnlyCurrentScreen" type="Bool">
-			<label>Only show windows from current Screen in pager</label>
-			<default>false</default>
-		</entry>
-		<entry name="stayVisible" type="Bool">
-			<label>Whether to stay visible when there is only one virtual desktop</label>
-			<default>true</default>
-		</entry>
 		<entry name="enableScrolling" type="Bool">
 			<label>Whether to enable scrolling to change the active desktop</label>
 			<default>true</default>
@@ -149,14 +133,6 @@
 		<entry name="inactiveBgColorWithoutWindows" type="Color">
 			<label>The color of the desktop rectangle background.</label>
 			<default>#222222</default>
-		</entry>
-		<entry name="showWindowIndicator" type="Bool">
-			<label>Show a little rectangle if a window is open on the desktop</label>
-			<default>false</default>
-		</entry>
-		<entry name="windowIndicatorRadius" type="Int">
-			<label>The radius of the borders of the window indicator.</label>
-			<default>5</default>
 		</entry>
 	</group>
 

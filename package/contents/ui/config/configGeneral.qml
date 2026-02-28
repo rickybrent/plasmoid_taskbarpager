@@ -33,10 +33,6 @@ KCM.SimpleKCM {
 	property alias cfg_wrapPage: wrapPage.checked
 	property alias cfg_currentDesktopSelected: currentDesktopSelectedBox.currentIndex
 	property alias cfg_actionOnCompactLayout: actionOnCompactLayout.checked
-	property alias cfg_stayVisible: stayVisible.checked
-	property alias cfg_showDesktopNames: showDesktopNames.checked
-	property alias cfg_showWindowIcons: showWindowIcons.checked
-	property alias cfg_showOnlyCurrentScreen: showOnlyCurrentScreen.checked
 	property alias cfg_windowCountPerDesktop: windowCountPerDesktop.value
 	property alias cfg_pinnedWindowBehavior: pinnedWindowBehaviorBox.currentIndex
 
@@ -44,11 +40,6 @@ KCM.SimpleKCM {
 		id: layoutGeneral
 
 		//anchors.fill: parent
-
-		QtControls.CheckBox {
-			id: stayVisible
-			text: i18n("Stay visible when there is only one virtual desktop")
-		}
 
 		QtControls.CheckBox {
 			id: enableScrolling
@@ -66,34 +57,8 @@ KCM.SimpleKCM {
 			text: i18n("Navigation wraps around")
 		}
 
-		QtControls.CheckBox {
-			id: showOnlyCurrentScreen
-			text: i18n("Only show windows from current Screen in pager")
-		}
-
 		Item {
 			Kirigami.FormData.isSection: true
-		}
-
-		QtControls.ButtonGroup {
-			buttons: [showDesktopNumbers, showDesktopNames, showWindowIcons]
-		}
-
-		QtControls.RadioButton {
-			id: showDesktopNumbers
-			Kirigami.FormData.label: i18n("What to show in box:")
-			text: i18n("Show desktop numbers")
-			checked: !showDesktopNames.checked && !showWindowIcons.checked
-		}
-
-		QtControls.RadioButton {
-			id: showDesktopNames
-			text: i18n("Show desktop names")
-		}
-
-		QtControls.RadioButton {
-			id: showWindowIcons
-			text: i18n("Show window icons")
 		}
 
 		Item {

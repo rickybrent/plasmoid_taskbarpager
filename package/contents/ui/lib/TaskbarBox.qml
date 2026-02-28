@@ -31,44 +31,37 @@ Rectangle {
 	property bool fontSizeChecked: plasmoid.configuration.fontSizeChecked
 	property color fontColor: plasmoid.configuration.fontColorChecked ? 
 			plasmoid.configuration.fontColor : Kirigami.Theme.textColor
-	property bool showWindowIndicator: true
 	property list<var> taskWindows: []
 
 	border.width: plasmoid.configuration.displayBorder ? plasmoid.configuration.borderThickness : 0
 	radius: height > width ? height * (plasmoid.configuration.borderRadius / 100) : width * (plasmoid.configuration.borderRadius / 100)
+
+	signal desktopClicked()
+
     PagerMod.LaunchBackend {
         id: localLaunchBackend
     }
+
+	MouseArea {
+		anchors.fill: parent
+		onClicked: taskbarBox.desktopClicked()
+	}
 
 	TextMetrics {
 		id: textMet
 		text: numberText.text
 		font: numberText.font
 	}
+
 	property int windowsCountVisible: Math.max(taskbarBox.taskWindows.length, plasmoid.configuration.windowCountPerDesktop)
-	property real longways: Math.max(textMet.width + 10, (taskbarBox.height + 4) * (windowsCountVisible + 1))
+	property int targetWindowCount: plasmoid.configuration.windowCountPerDesktop
+	property real longways: Math.max(textMet.width + 10, taskbarBox.height * (targetWindowCount + 1) + 7)
 	property real shortways: textMet.height + 6
 	implicitWidth: plasmoid.formFactor === PlasmaCore.Types.Vertical ? shortways : longways
 	implicitHeight: plasmoid.formFactor === PlasmaCore.Types.Vertical ? longways : shortways
 
-	Rectangle {
-		id: windowIndicator
-		visible: taskbarBox.showWindowIndicator
-
-		anchors.left: numberText.right
-		anchors.top: numberText.top
-
-		width: 8
-		height: 8
-		border.color: taskbarBox.fontColor
-		border.width: 1
-		color: "transparent"
-		radius: width * (plasmoid.configuration.windowIndicatorRadius / 100)
-	}
-
 	Text {
 		id: numberText
-		visible: plasmoid.configuration.stayVisible
 		anchors.left: parent.left
 		anchors.verticalCenter: parent.verticalCenter
 		text: pagerModel.currentPage + 1
@@ -87,7 +80,6 @@ Rectangle {
 		id: tasksGrid
 		anchors.left: numberText.right
 		anchors.verticalCenter: parent.verticalCenter
-		visible: plasmoid.configuration.showWindowIcons
 		columnSpacing: 4
 
 		readonly property int maxIconCountO: Math.floor(Math.max(taskbarBox.height, taskbarBox.width) / taskBoxSize)

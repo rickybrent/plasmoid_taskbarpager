@@ -26,15 +26,14 @@ import org.kde.kirigami as Kirigami
 import com.github.rickybrent.taskbarpager as PagerMod
 
 
-GridLayout {
+RowLayout {
 	id: reprLayout
 	Layout.alignment: Qt.AlignTop
 	property bool isFullRep: true
-	rowSpacing: 0
-	columnSpacing: 3
+	spacing: 3
 
 	property color bgColorHighlight: plasmoid.configuration.activeBgColorChecked ?
-			plasmoid.configuration.activeBgColor : Kirigami.Theme.backgroundColor
+		plasmoid.configuration.activeBgColor : Kirigami.Theme.backgroundColor
 
 	property color fontColor: plasmoid.configuration.fontColorChecked ? 
 			plasmoid.configuration.fontColor : Kirigami.Theme.textColor
@@ -67,7 +66,8 @@ GridLayout {
 
 	// if we have the space to lay the desktops out like the model says
 	function properLayoutFits(cols) {
-		let wantedWidth = 25 * cols
+		let pinnedCols = plasmoid.configuration.pinnedWindowBehavior === 2 ? 1 : 0
+		let wantedWidth = 25 * (cols + pinnedCols)
 		let wantedHeight = 25 * pagerModel.layoutRows
 		return width >= wantedWidth && height >= wantedHeight
 	}
@@ -83,249 +83,282 @@ GridLayout {
 		}
 	}
 
-	columns: {
-		let cols = modelColumns()
+	// Map tasks for the repeater.
+	// TODO: check if there's a better way to do this now since we're writing a cpp plugin anyway.
+	component TaskMapper : Item {
+		id: mapperRoot
+		property var tasksModel: null
+		property int pageIndex: 0
+		property bool onlyPinned: false
+		property bool excludePinned: false
 
-		// names are larger and don't all have equal width, so there's no point even
-		// trying to figure out if it would fit
-		if (plasmoid.configuration.showDesktopNames) {
-			return cols
+		property list<var> taskWindows: {
+			const result = [];
+			for (let i = 0; i < proxyRepeater.count; i++) {
+				const taskProxy = proxyRepeater.itemAt(i);
+				if (!taskProxy) continue;
+				if (onlyPinned && !taskProxy.isOnAllVirtualDesktops) continue;
+				if (!onlyPinned &&plasmoid.configuration.pinnedWindowBehavior === 1 && taskProxy.isOnAllVirtualDesktops && index !== pagerModel.currentPage) continue;
+				if (excludePinned && taskProxy.isOnAllVirtualDesktops) continue;
+
+				let badgeString = "";
+				const numberMatch = taskProxy.title.match(/\((\d+)\)/);
+				if (numberMatch) {
+					badgeString = numberMatch[1];
+				} else if (taskProxy.title.startsWith("•") || taskProxy.title.endsWith("•")) {
+					badgeString = "•";
+				} else if (taskProxy.isDemandingAttention) {
+					badgeString = "!";
+				}
+				result.push({
+					source: taskProxy.iconSource,
+					title: taskProxy.title,
+					appName: taskProxy.appName,
+					badgeText: badgeString,
+					isDemandingAttention: taskProxy.isDemandingAttention,
+					isActive: taskProxy.isActive,
+					sourcePage: pageIndex,
+
+					isClosable: taskProxy.isClosable,
+					isMovable: taskProxy.isMovable,
+					isResizable: taskProxy.isResizable,
+					isMinimized: taskProxy.isMinimized,
+					isMinimizable: taskProxy.isMinimizable,
+					isMaximized: taskProxy.isMaximized,
+					isMaximizable: taskProxy.isMaximizable,
+
+					virtualDesktops: taskProxy.virtualDesktops,
+					launcherUrlWithoutIcon: taskProxy.launcherUrlWithoutIcon,
+
+					isFullScreen: taskProxy.isFullScreen,
+					isFullScreenable: taskProxy.isFullScreenable,
+					isShaded: taskProxy.isShaded,
+					isShadeable: taskProxy.isShadeable,
+					hasNoBorder: taskProxy.hasNoBorder,
+					canSetNoBorder: taskProxy.canSetNoBorder,
+					canLaunchNewInstance: taskProxy.canLaunchNewInstance,
+					isExcludedFromCapture: taskProxy.isExcludedFromCapture,
+					isOnAllVirtualDesktops: taskProxy.isOnAllVirtualDesktops,
+					isKeepAbove: taskProxy.isKeepAbove,
+					isKeepBelow: taskProxy.isKeepBelow,
+
+					activateWindow: () => {
+						pagerModel.changePage(pageIndex);
+						mapperRoot.tasksModel.requestActivate(mapperRoot.tasksModel.index(i, 0)); 
+					},
+					closeWindow: () => {
+						mapperRoot.tasksModel.requestClose(mapperRoot.tasksModel.index(i, 0));
+					},
+					minimizeWindow: () => {
+						mapperRoot.tasksModel.requestToggleMinimized(mapperRoot.tasksModel.index(i, 0));
+					},
+					maximizeWindow: () => {
+						mapperRoot.tasksModel.requestToggleMaximized(mapperRoot.tasksModel.index(i, 0));
+					},
+					toggleKeepAbove: () => {
+						mapperRoot.tasksModel.requestToggleKeepAbove(mapperRoot.tasksModel.index(i, 0));
+					},
+					toggleKeepBelow: () => {
+						mapperRoot.tasksModel.requestToggleKeepBelow(mapperRoot.tasksModel.index(i, 0));
+					},
+					newInstance: () => {
+						mapperRoot.tasksModel.requestNewInstance(mapperRoot.tasksModel.index(i, 0));
+					},
+					resize: () => {
+						// Interactive window resize.
+						mapperRoot.tasksModel.requestResize(mapperRoot.tasksModel.index(i, 0));
+					},
+					move: () => {
+						// Interactive window move.
+						mapperRoot.tasksModel.requestMove(mapperRoot.tasksModel.index(i, 0));
+					},
+					toggleFullScreen: () => {
+						mapperRoot.tasksModel.requestToggleFullScreen(mapperRoot.tasksModel.index(i, 0));
+					},
+					toggleShaded: () => {
+						mapperRoot.tasksModel.requestToggleShaded(mapperRoot.tasksModel.index(i, 0));
+					},
+					toggleNoBorder: () => {
+						mapperRoot.tasksModel.requestToggleNoBorder(mapperRoot.tasksModel.index(i, 0));
+					},
+					toggleExcludeFromCapture: () => {
+						mapperRoot.tasksModel.requestToggleExcludeFromCapture(mapperRoot.tasksModel.index(i, 0));
+					},
+					togglePinToAllDesktops: () => {
+						if (taskProxy.isOnAllVirtualDesktops) {
+							mapperRoot.tasksModel.requestVirtualDesktopPage(mapperRoot.tasksModel.index(i, 0), pageIndex);
+						} else {
+							mapperRoot.tasksModel.requestVirtualDesktops(mapperRoot.tasksModel.index(i, 0), []);
+						}
+					},
+					moveWindowToDesktopPage: (page) => {
+						mapperRoot.tasksModel.requestVirtualDesktopPage(mapperRoot.tasksModel.index(i, 0), page);
+					}
+				});
+			}
+			return result;
 		}
 
-		switch (Plasmoid.formFactor) {
-			// for vertical and horizontal panels, we ignore the height and width, respectively
-			// since the plasmoid can scale in those directions
-			case 2: { // horizontal
-				let availableRows = Math.floor(height / 25)
-				let targetRows = Math.max(Math.min(availableRows, pagerModel.layoutRows), 1)
-				return Math.ceil(pagerModel.count / targetRows)
+		Repeater {
+			id: proxyRepeater
+			model: mapperRoot.tasksModel
+			Item {
+				visible: false
+				property var iconSource: model.decoration
+				property string title: model.display || ""
+				property string appName: model.AppName || ""
+				property bool isDemandingAttention: model.IsDemandingAttention
+				property bool isActive: model.IsActive
+
+				property bool isClosable: model.IsClosable
+				property bool isMovable: model.IsMovable
+				property bool isResizable: model.IsResizable
+				property bool isMinimized: model.IsMinimized
+				property bool isMinimizable: model.IsMinimizable
+				property bool isMaximized: model.IsMaximized
+				property bool isMaximizable: model.IsMaximizable
+
+				property var virtualDesktops: model.VirtualDesktops
+				property string launcherUrlWithoutIcon: model.LauncherUrlWithoutIcon || ""
+
+				property bool isFullScreen: model.IsFullScreen
+				property bool isFullScreenable: model.IsFullScreenable
+				property bool isShaded: model.IsShaded
+				property bool isShadeable: model.IsShadeable
+				property bool hasNoBorder: model.HasNoBorder
+				property bool canSetNoBorder: model.CanSetNoBorder
+				property bool canLaunchNewInstance: model.CanLaunchNewInstance
+				property bool isExcludedFromCapture: model.IsExcludedFromCapture
+				property bool isOnAllVirtualDesktops: model.IsOnAllVirtualDesktops
+				property bool isKeepAbove: model.IsKeepAbove
+				property bool isKeepBelow: model.IsKeepBelow
 			}
-			case 3: { // vertical
-				let availableColumns = Math.floor(width / 25)
-				return Math.max(Math.min(availableColumns, cols), 1)
-			}
-			default:
-				return cols
 		}
 	}
 
-	Repeater {
-		id: dRep
-		model: pagerModel
 
-		TaskbarBox {
-			id: tBox
-			visible: reprLayout.shouldShowFullLayout || index === pagerModel.currentPage
-			// TODO fix in plasma
-			text: (plasmoid.configuration.showDesktopNames && model.display != "") ? model.display : index + 1
-			Layout.fillWidth: true
-			Layout.fillHeight: true
-			Layout.minimumWidth: implicitWidth
-			Layout.preferredHeight: implicitHeight 
-			Layout.minimumHeight: 25
-			Layout.preferredWidth: Math.max(implicitWidth, height)
-			Layout.alignment: Qt.AlignTop | Qt.AlignHCenter
+	TaskbarBox {
+		id: pinnedBox
+		visible: plasmoid.configuration.pinnedWindowBehavior === 2
+		text: "🖈"
+		
+		Layout.fillWidth: false
+		Layout.fillHeight: true
+		Layout.minimumWidth: implicitWidth
+		Layout.preferredHeight: implicitHeight 
+		Layout.minimumHeight: 25
+		Layout.alignment: Qt.AlignTop | Qt.AlignHCenter
 
-			// this is horrible, is there really no other way to do this in qml???
-			Repeater {
-				id: proxyRepeater
-				model: TasksModel
-				Item {
-					visible: false
-					property var iconSource: model.decoration
-					property string title: model.display || ""
-					property string appName: model.AppName || ""
-					property bool isDemandingAttention: model.IsDemandingAttention
-					property bool isActive: model.IsActive
+		color: bgColorWithoutWindows
+		border.color: borderColor
 
-					property bool isClosable: model.IsClosable
-					property bool isMovable: model.IsMovable
-					property bool isResizable: model.IsResizable
-					property bool isMinimized: model.IsMinimized
-					property bool isMinimizable: model.IsMinimizable
-					property bool isMaximized: model.IsMaximized
-					property bool isMaximizable: model.IsMaximizable
-
-					property var virtualDesktops: model.VirtualDesktops
-					property string launcherUrlWithoutIcon: model.LauncherUrlWithoutIcon || ""
-
-					property bool isFullScreen: model.IsFullScreen
-					property bool isFullScreenable: model.IsFullScreenable
-					property bool isShaded: model.IsShaded
-					property bool isShadeable: model.IsShadeable
-					property bool hasNoBorder: model.HasNoBorder
-					property bool canSetNoBorder: model.CanSetNoBorder
-					property bool canLaunchNewInstance: model.CanLaunchNewInstance
-					property bool isExcludedFromCapture: model.IsExcludedFromCapture
-					property bool isOnAllVirtualDesktops: model.IsOnAllVirtualDesktops
-					property bool isKeepAbove: model.IsKeepAbove
-					property bool isKeepBelow: model.IsKeepBelow
+		// Fetch the TasksModel from the first regular virtual desktop to get the master list
+		TaskMapper {
+			id: pinnedMapper
+			tasksModel: dRep.count > 0 && dRep.itemAt(0) ? dRep.itemAt(0).desktopTasksModel : null
+			pageIndex: pagerModel.currentPage
+			onlyPinned: true
+		}
+		DropArea {
+			anchors.fill: parent
+			onDropped: (drop) => {
+				if (drop.source && drop.source.moveWindowToDesktopPage) {
+					drop.source.visible = false
+					drop.source.togglePinToAllDesktops()
+					drop.accept();
 				}
 			}
-			
-
-			showWindowIndicator: plasmoid.configuration.showWindowIndicator && proxyRepeater.count > 0
-
-			taskWindows: {
-				const result = [];
-				for (let i = 0; i < proxyRepeater.count; i++) {
-					const taskProxy = proxyRepeater.itemAt(i);
-					if (taskProxy.isOnAllVirtualDesktops) {
-						if (plasmoid.configuration.pinnedWindowBehavior === 1 && index !== pagerModel.currentPage) {
-							continue;
-						}
-						if (plasmoid.configuration.pinnedWindowBehavior === 2 && index >= 0) {
-							continue; 
-						}
-					} else {
-						if (index === -1) {
-							continue;
-						}
-					}	
-					let badgeString = "";
-					const numberMatch = taskProxy.title.match(/\((\d+)\)/);
-					if (numberMatch) {
-						badgeString = numberMatch[1];
-					} else if (taskProxy.title.startsWith("•") || taskProxy.title.endsWith("•")) {
-						badgeString = "•";
-					} else if (taskProxy.isDemandingAttention) {
-						badgeString = "!";
-					}
-					result.push({
-						source: taskProxy.iconSource,
-						title: taskProxy.title,
-						appName: taskProxy.appName,
-						badgeText: badgeString,
-						isDemandingAttention: taskProxy.isDemandingAttention,
-						isActive: taskProxy.isActive,
-						sourcePage: index,
-
-						isClosable: taskProxy.isClosable,
-						isMovable: taskProxy.isMovable,
-						isResizable: taskProxy.isResizable,
-						isMinimized: taskProxy.isMinimized,
-						isMinimizable: taskProxy.isMinimizable,
-						isMaximized: taskProxy.isMaximized,
-						isMaximizable: taskProxy.isMaximizable,
-
-						virtualDesktops: taskProxy.virtualDesktops,
-						launcherUrlWithoutIcon: taskProxy.launcherUrlWithoutIcon,
-
-						isFullScreen: taskProxy.isFullScreen,
-						isFullScreenable: taskProxy.isFullScreenable,
-						isShaded: taskProxy.isShaded,
-						isShadeable: taskProxy.isShadeable,
-						hasNoBorder: taskProxy.hasNoBorder,
-						canSetNoBorder: taskProxy.canSetNoBorder,
-						canLaunchNewInstance: taskProxy.canLaunchNewInstance,
-						isExcludedFromCapture: taskProxy.isExcludedFromCapture,
-						isOnAllVirtualDesktops: taskProxy.isOnAllVirtualDesktops,
-						isKeepAbove: taskProxy.isKeepAbove,
-						isKeepBelow: taskProxy.isKeepBelow,
+		}
+		taskWindows: pinnedMapper.taskWindows
+		targetWindowCount: taskWindows.length
+	}
 
 
-						activateWindow: () => {
-							pagerModel.changePage(index); 
-							TasksModel.requestActivate(TasksModel.index(i, 0)); 
-						},
-						closeWindow: () => {
-							TasksModel.requestClose(TasksModel.index(i, 0));
-						},
-						minimizeWindow: () => {
-							TasksModel.requestToggleMinimized(TasksModel.index(i, 0));
-						},
-						maximizeWindow: () => {
-							TasksModel.requestToggleMaximized(TasksModel.index(i, 0));
-						},
+	GridLayout {
+		Layout.fillWidth: true
+		Layout.fillHeight: true
+		Layout.alignment: Qt.AlignTop
+		rowSpacing: 0
+		columnSpacing: 3
 
-						toggleKeepAbove: () => {
-							TasksModel.requestToggleKeepAbove(TasksModel.index(i, 0));
-						},
-						toggleKeepBelow: () => {
-							TasksModel.requestToggleKeepBelow(TasksModel.index(i, 0));
-						},
-						newInstance: () => {
-							TasksModel.requestNewInstance(TasksModel.index(i, 0));
-						},
-						resize: () => {
-							// Interactive window resize.
-							TasksModel.requestResize(TasksModel.index(i, 0));
-						},
-						move: () => {
-							// Interactive window move.
-							TasksModel.requestMove(TasksModel.index(i, 0));
-						},
-						toggleFullScreen: () => {
-							TasksModel.requestToggleFullScreen(TasksModel.index(i, 0));
-						},
-						toggleShaded: () => {
-							TasksModel.requestToggleShaded(TasksModel.index(i, 0));
-						},
-						toggleNoBorder: () => {
-							TasksModel.requestToggleNoBorder(TasksModel.index(i, 0));
-						},
-						toggleExcludeFromCapture: () => {
-							TasksModel.requestToggleExcludeFromCapture(TasksModel.index(i, 0));
-						},
-						togglePinToAllDesktops: () => {
-							if (taskProxy.isOnAllVirtualDesktops) {
-								TasksModel.requestVirtualDesktopPage(TasksModel.index(i, 0), index);
-							} else {
-								TasksModel.requestVirtualDesktops(TasksModel.index(i, 0), []);
-							}
-						},
-						moveWindowToDesktopPage: (page) => {
-							TasksModel.requestVirtualDesktopPage(TasksModel.index(i, 0), page);
-						}
-					});
+		columns: {
+			let cols = modelColumns()
+			switch (Plasmoid.formFactor) {
+				case 2: { // horizontal
+					let availableRows = Math.floor(height / 25)
+					let targetRows = Math.max(Math.min(availableRows, pagerModel.layoutRows), 1)
+					return Math.ceil(pagerModel.count / targetRows)
 				}
-				return result;
+				case 3: { // vertical
+					let availableColumns = Math.floor(width / 25)
+					return Math.max(Math.min(availableColumns, cols), 1)
+				}
+				default:
+					return cols
 			}
+		}
 
-			//highlight the current desktop
-			color: index === pagerModel.currentPage ? bgColorHighlight :
-				((proxyRepeater.count > 0) ? bgColor : bgColorWithoutWindows)
-			border.color: index === pagerModel.currentPage ? borderColorHighlight : borderColor
+		Repeater {
+			id: dRep
+			model: pagerModel
 
-			MouseArea {
-				anchors.fill: parent
-				z: -1
-				onClicked: {
+			TaskbarBox {
+				id: tBox
+				// Expose this so the PinnedBox can grab it
+				property var desktopTasksModel: TasksModel
+
+				visible: reprLayout.shouldShowFullLayout || index === pagerModel.currentPage
+				text: (plasmoid.configuration.showDesktopNames && model.display != "") ? model.display : index + 1
+				Layout.fillWidth: true
+				Layout.fillHeight: true
+				Layout.minimumWidth: implicitWidth
+				Layout.preferredHeight: implicitHeight 
+				Layout.minimumHeight: 25
+				Layout.preferredWidth: Math.max(implicitWidth, height)
+				Layout.alignment: Qt.AlignTop | Qt.AlignHCenter
+
+				TaskMapper {
+					id: taskMapper
+					tasksModel: tBox.desktopTasksModel
+					pageIndex: index
+					excludePinned: plasmoid.configuration.pinnedWindowBehavior === 2
+				}
+
+				taskWindows: taskMapper.taskWindows
+
+				//highlight the current desktop
+				color: index === pagerModel.currentPage ? bgColorHighlight : ((taskMapper.taskWindows.length > 0) ? bgColor : bgColorWithoutWindows)
+				border.color: index === pagerModel.currentPage ? borderColorHighlight : borderColor
+
+				onDesktopClicked: {
 					// when clicking on the desktop we're already on
-					if (model.index === pagerModel.currentPage) {
-						// ...and we're in full layout or configured to do an action in compact layout...
+					if (index === pagerModel.currentPage) {
 						if (reprLayout.shouldShowFullLayout || plasmoid.configuration.actionOnCompactLayout) {
-							// do some action
 							switch (plasmoid.configuration.currentDesktopSelected) {
-								case 0: // do nothing
-									break;
-								case 1: // show desktop
-									pagerModel.changePage(pagerModel.currentPage)
-									break;
-								case 2:
-									runOverview()
-									break;
+								case 0: break;
+								case 1: pagerModel.changePage(pagerModel.currentPage); break;
+								case 2: runOverview(); break;
 							}
-							root.expanded = false
+							root.expanded = false;
 						} else {
-							root.expanded = !root.expanded
+							root.expanded = !root.expanded;
 						}
 					} else {
-						pagerModel.changePage(model.index)
-						root.expanded = false
+						pagerModel.changePage(index);
+						root.expanded = false;
 					}
 				}
-			}
 
-			DropArea {
-				anchors.fill: parent
-				onDropped: (drop) => {
-					if (drop.source && drop.source.moveWindowToDesktopPage) {
-						if (drop.source.sourcePage !== index) {
-							drop.source.visible = false
+				DropArea {
+					anchors.fill: parent
+					onDropped: (drop) => {
+						if (drop.source && drop.source.moveWindowToDesktopPage) {
+							if (drop.source.sourcePage !== index) {
+								drop.source.visible = false
+							}
+							drop.source.moveWindowToDesktopPage(index);
+							drop.accept();
 						}
-						drop.source.moveWindowToDesktopPage(index);
-						drop.accept();
 					}
 				}
 			}
