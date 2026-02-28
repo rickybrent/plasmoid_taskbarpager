@@ -3,6 +3,7 @@
  * Copyright 2013  Sebastian Kügler <sebas@kde.org>
  * Copyright 2021-2024  Tino Lorenz <tilrnz@gmx.net>
  * Copyright 2022  Diego Miguel <hello@diegomiguel.me>
+ * Copyright 2026  Ricky Brent <ricky@rickybrent.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -211,7 +212,6 @@ KCM.SimpleKCM {
 
 		QtControls.SpinBox {
 			id: borderRadius
-			enabled: displayBorder.checked
 			Kirigami.FormData.label: i18n("Border radius (%):")
 			from: 0
 			to: 100

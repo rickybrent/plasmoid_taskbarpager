@@ -1,6 +1,7 @@
 /*
  * Copyright 2021  Tino Lorenz <tilrnz@gmx.net>
  * Copyright 2022  Diego Miguel <hello@diegomiguel.me>
+ * Copyright 2026  Ricky Brent <ricky@rickybrent.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -66,7 +67,7 @@ Rectangle {
 	property real effectiveCross: Math.max(crossDimension, shortways)
 
 	// Precisely calculate the needed length: text width + icon widths + grid spacing + buffer
-	property real textSpace: textMet.width + 16 // 8 left padding + 8 right padding
+	property real textSpace: plasmoid.configuration.desktopLabels === 0  ? 0 : textMet.width + 16 // 8 left padding + 8 right padding
 	property real iconSpace: targetWindowCount > 0 ? (targetWindowCount * effectiveCross) + ((targetWindowCount - 1) * 4) : 0
 	property real longways: textSpace + iconSpace + 4
 
@@ -75,7 +76,7 @@ Rectangle {
 
 	Text {
 		id: numberText
-		visible: taskbarBox.customIcon === ""// && plasmoid.configuration.stayVisible
+		visible: taskbarBox.customIcon === "" && plasmoid.configuration.desktopLabels !== 0
 		anchors.left: parent.left
 		anchors.verticalCenter: parent.verticalCenter
 		width: textSpace

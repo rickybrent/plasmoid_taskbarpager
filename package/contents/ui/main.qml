@@ -4,6 +4,7 @@
  * Copyright 2016  Eike Hein <hein@kde.org>
  * Copyright 2021  Tino Lorenz <tilrnz@gmx.net>
  * Copyright 2022  Diego Miguel <hello@diegomiguel.me>
+ * Copyright 2026  Ricky Brent <ricky@rickybrent.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

@@ -3,6 +3,7 @@
  * Copyright 2016  Eike Hein <hein@kde.org>
  * Copyright 2021-2024  Tino Lorenz <tilrnz@gmx.net>
  * Copyright 2022  Diego Miguel <hello@diegomiguel.me>
+ * Copyright 2026  Ricky Brent <ricky@rickybrent.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,6 +29,7 @@ KCM.SimpleKCM {
 	id: layoutGeneralRoot
 
 	property alias cfg_forceLayout: pagerLayout.currentIndex
+	property alias cfg_desktopLabels: desktopLabelsBox.currentIndex
 	property alias cfg_enableScrolling: enableScrolling.checked
 	property alias cfg_invertScrollDirection: invertScrollDirection.checked
 	property alias cfg_wrapPage: wrapPage.checked
@@ -41,10 +43,24 @@ KCM.SimpleKCM {
 		id: layoutGeneral
 
 		//anchors.fill: parent
+		Item {
+			Kirigami.FormData.isSection: true
+		}
+
+		QtControls.ComboBox {
+			id: desktopLabelsBox
+			Kirigami.FormData.label: i18n("Desktop labels:")
+			model: [i18n("None"), i18n("Desktop number"), i18n("Desktop name")]
+		}
+
+		Item {
+			Kirigami.FormData.isSection: true
+		}
 
 		QtControls.CheckBox {
 			id: enableScrolling
 			text: i18n("Enable scrolling to change the active desktop")
+			Kirigami.FormData.label: i18n("Scrolling:")
 		}
 
 		QtControls.CheckBox {

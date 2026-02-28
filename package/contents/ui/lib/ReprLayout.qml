@@ -1,6 +1,7 @@
 /*
  * Copyright 2021-2024  Tino Lorenz <tilrnz@gmx.net>
  * Copyright 2022  Diego Miguel <hello@diegomiguel.me>
+ * Copyright 2026  Ricky Brent <ricky@rickybrent.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -271,8 +272,8 @@ GridLayout {
 	TaskbarBox {
 		id: pinnedBox
 		visible: plasmoid.configuration.pinnedWindowBehavior === 2
-		text: "🖈"
-		customIcon: "window-pin"
+		text: plasmoid.configuration.desktopLabels === 0 ? " -" : "🖈"
+		customIcon: plasmoid.configuration.desktopLabels === 0 ? "" :  "window-pin"
 		
 		
 		Layout.fillWidth: reprLayout.isVertical
@@ -323,6 +324,13 @@ GridLayout {
 
 		columns: {
 			let cols = modelColumns()
+
+			// names are larger and don't all have equal width, so there's no point even
+			// trying to figure out if it would fit
+			if (plasmoid.configuration.desktopLabels === 2) {
+				return cols
+			}
+
 			switch (Plasmoid.formFactor) {
 				case 2: { // horizontal
 					let availableRows = Math.floor(height / 25)
@@ -349,7 +357,15 @@ GridLayout {
 
 				isCompactInactive: !reprLayout.shouldShowFullLayout && index !== pagerModel.currentPage && plasmoid.configuration.compactShowInactive
 				visible: reprLayout.shouldShowFullLayout || index === pagerModel.currentPage || isCompactInactive
-				text: (plasmoid.configuration.showDesktopNames && model.display != "") ? model.display : index + 1
+				text: {
+					if (plasmoid.configuration.desktopLabels === 2 && model.display !== "") {
+						return model.display;
+					} else if (plasmoid.configuration.desktopLabels === 1) {
+						return index + 1;
+					} else {
+						return "";
+					}
+				}
 				Layout.fillWidth: true
 				Layout.fillHeight: true
 				Layout.minimumWidth: implicitWidth

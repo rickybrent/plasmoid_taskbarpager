@@ -6,6 +6,15 @@
 <kcfgfile name=""/>
 
 	<group name="General">
+		<entry name="desktopLabels" type="Enum">
+			<label>How to label the virtual desktops</label>
+			<choices>
+				<choice name="None"/>
+				<choice name="DesktopNumber"/>
+				<choice name="DesktopName"/>
+			</choices>
+			<default>1</default>
+		</entry>
 		<entry name="enableScrolling" type="Bool">
 			<label>Whether to enable scrolling to change the active desktop</label>
 			<default>true</default>
@@ -20,7 +29,7 @@
 		</entry>
 		<entry name="actionOnCompactLayout" type="Bool">
 			<label>Whether to directly show the overview / desktop in compact layout</label>
-			<default>false</default>
+			<default>true</default>
 		</entry>
 		<entry name="currentDesktopSelected" type="Enum">
 			<label>What to do on left-mouse click on current desktop rectangle.</label>
@@ -96,7 +105,7 @@
 		</entry>		
 			<entry name="displayBorder" type="Bool">
 			<label>Whether to display the border of the desktop rectangles.</label>
-			<default>true</default>
+			<default>false</default>
 		</entry>
 		<entry name="sameBorderColorAsFont" type="Bool">
 			<label>Whether the color of the border is the same as the color of the font.</label>
@@ -112,7 +121,7 @@
 		</entry>
 		<entry name="borderRadius" type="Int">
 			<label>The radius of the borders.</label>
-			<default>5</default>
+			<default>0</default>
 		</entry>
 		<entry name="activeBgColorChecked" type="Bool">
 			<label>Whether to use a custom active background color.</label>
