@@ -83,6 +83,7 @@ public:
     Q_INVOKABLE void drop(QMimeData *mimeData, int modifiers, const QVariant &itemId);
     Q_INVOKABLE void addDesktop();
     Q_INVOKABLE void removeDesktop();
+    Q_INVOKABLE void toggleOverview();
 
     void classBegin() override;
     void componentComplete() override;

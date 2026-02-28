@@ -59,7 +59,7 @@ PlasmoidItem {
 	}
 
 	function runOverview() {
-		executable.exec('qdbus org.kde.kglobalaccel /component/kwin invokeShortcut Overview')
+		pagerModel.toggleOverview();
 	}
 
 	function switchDesktop(wheel) {

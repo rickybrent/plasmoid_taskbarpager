@@ -8,6 +8,7 @@
 #include <taskmanager/xwindowtasksmodel.h>
 
 #include <QDBusConnection>
+#include <QDBusInterface>
 #include <QDBusMessage>
 #include <QDBusPendingCall>
 #include <QGuiApplication>
@@ -545,6 +546,14 @@ void PagerModel::removeDesktop()
     }
 
     d->virtualDesktopInfo->requestRemoveDesktop(d->virtualDesktopInfo->numberOfDesktops() - 1);
+}
+
+void PagerModel::toggleOverview()
+{
+    QDBusInterface(QStringLiteral("org.kde.kglobalaccel"),
+                   QStringLiteral("/component/kwin"),
+                   QStringLiteral("org.kde.kglobalaccel.Component"))
+        .asyncCall(QStringLiteral("invokeShortcut"), QStringLiteral("Overview"));
 }
 
 void PagerModel::classBegin()
