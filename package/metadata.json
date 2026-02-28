@@ -90,7 +90,7 @@
         "Description[zh_CN]": "在虚拟桌面间切换",
         "Description[zh_TW]": "在虛擬桌面間切換",
         "EnabledByDefault": false,
-        "Icon": "user-desktop",
+        "Icon": "preferences-desktop-plasma",
         "Id": "com.github.rickybrent.taskbarpager",
         "License": "GPL-3.0+",
         "Name": "Taskbar Pager",

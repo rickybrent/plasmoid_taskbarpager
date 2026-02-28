@@ -131,7 +131,7 @@ KCM.SimpleKCM {
 		QtControls.ComboBox {
 			id: taskSort
 			Kirigami.FormData.label: i18n("Window order:")
-			model: [i18n("Do not sort"), i18n("Manually"), i18n("Alphabetically"), i18n("By horizontal window position",  i18n("By vertical window position")]
+			model: [i18n("Do not sort"), i18n("Manually"), i18n("Alphabetically"), i18n("By horizontal window position"),  i18n("By vertical window position")]
 		}
 
 		Item {
