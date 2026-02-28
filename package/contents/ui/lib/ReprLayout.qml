@@ -26,12 +26,17 @@ import org.kde.kirigami as Kirigami
 import com.github.rickybrent.taskbarpager as PagerMod
 
 
-RowLayout {
+GridLayout {
 	id: reprLayout
 	Layout.alignment: Qt.AlignTop
+	rowSpacing: 3
+	columnSpacing: 3
 	property bool isFullRep: true
-	spacing: 3
-
+	
+	property bool isVertical: Plasmoid.formFactor === 3
+	rows: isVertical ? 2 : 1
+	columns: isVertical ? 1 : 2	
+	
 	property color bgColorHighlight: plasmoid.configuration.activeBgColorChecked ?
 		plasmoid.configuration.activeBgColor : Kirigami.Theme.backgroundColor
 
@@ -66,9 +71,17 @@ RowLayout {
 
 	// if we have the space to lay the desktops out like the model says
 	function properLayoutFits(cols) {
-		let pinnedCols = plasmoid.configuration.pinnedWindowBehavior === 2 ? 1 : 0
-		let wantedWidth = 25 * (cols + pinnedCols)
+		let hasPinned = plasmoid.configuration.pinnedWindowBehavior === 3
+		let wantedWidth = 25 * cols
 		let wantedHeight = 25 * pagerModel.layoutRows
+		if (hasPinned) {
+			if (isVertical) {
+				wantedHeight += 25
+			} else {
+				wantedWidth += 25
+			}
+		}
+		
 		return width >= wantedWidth && height >= wantedHeight
 	}
 
@@ -259,13 +272,15 @@ RowLayout {
 		id: pinnedBox
 		visible: plasmoid.configuration.pinnedWindowBehavior === 2
 		text: "🖈"
+		customIcon: "window-pin"
 		
-		Layout.fillWidth: false
-		Layout.fillHeight: true
+		
+		Layout.fillWidth: reprLayout.isVertical
+		Layout.fillHeight: !reprLayout.isVertical
 		Layout.minimumWidth: implicitWidth
 		Layout.preferredHeight: implicitHeight 
 		Layout.minimumHeight: 25
-		Layout.alignment: Qt.AlignTop | Qt.AlignHCenter
+		Layout.alignment: reprLayout.isVertical ? (Qt.AlignLeft | Qt.AlignTop) : (Qt.AlignTop | Qt.AlignHCenter)
 
 		color: bgColorWithoutWindows
 		border.color: borderColor
@@ -277,6 +292,7 @@ RowLayout {
 			pageIndex: pagerModel.currentPage
 			onlyPinned: true
 		}
+
 		DropArea {
 			anchors.fill: parent
 			onDropped: (drop) => {
@@ -287,6 +303,7 @@ RowLayout {
 				}
 			}
 		}
+
 		onDesktopClicked: {
 			handleDesktopClick(pagerModel.currentPage);
 		}
@@ -330,14 +347,15 @@ RowLayout {
 				// Expose this so the PinnedBox can grab it
 				property var desktopTasksModel: TasksModel
 
-				visible: reprLayout.shouldShowFullLayout || index === pagerModel.currentPage
+				isCompactInactive: !reprLayout.shouldShowFullLayout && index !== pagerModel.currentPage && plasmoid.configuration.compactShowInactive
+				visible: reprLayout.shouldShowFullLayout || index === pagerModel.currentPage || isCompactInactive
 				text: (plasmoid.configuration.showDesktopNames && model.display != "") ? model.display : index + 1
 				Layout.fillWidth: true
 				Layout.fillHeight: true
 				Layout.minimumWidth: implicitWidth
 				Layout.preferredHeight: implicitHeight 
 				Layout.minimumHeight: 25
-				Layout.preferredWidth: Math.max(implicitWidth, height)
+				Layout.preferredWidth: implicitWidth
 				Layout.alignment: Qt.AlignTop | Qt.AlignHCenter
 
 				TaskMapper {

@@ -32,6 +32,8 @@ Rectangle {
 	property color fontColor: plasmoid.configuration.fontColorChecked ? 
 			plasmoid.configuration.fontColor : Kirigami.Theme.textColor
 	property list<var> taskWindows: []
+	property string customIcon: ""
+	property bool isCompactInactive: false
 
 	border.width: plasmoid.configuration.displayBorder ? plasmoid.configuration.borderThickness : 0
 	radius: height > width ? height * (plasmoid.configuration.borderRadius / 100) : width * (plasmoid.configuration.borderRadius / 100)
@@ -53,17 +55,31 @@ Rectangle {
 		font: numberText.font
 	}
 
-	property int windowsCountVisible: Math.max(taskbarBox.taskWindows.length, plasmoid.configuration.windowCountPerDesktop)
-	property int targetWindowCount: plasmoid.configuration.windowCountPerDesktop
-	property real longways: Math.max(textMet.width + 10, taskbarBox.height * (targetWindowCount + 1) + 7)
+	// Calculate how many icons we want to fit
+	property int targetWindowCount: isCompactInactive ? 0 : Math.max(plasmoid.configuration.windowCountPerDesktop, taskWindows.length)
+
+	// Base orthogonal dimension on font height
 	property real shortways: textMet.height + 6
+	
+	// Prevent binding loops by explicitly relying on the layout's OPPOSITE dimension
+	property real crossDimension: plasmoid.formFactor === PlasmaCore.Types.Vertical ? taskbarBox.width : taskbarBox.height
+	property real effectiveCross: Math.max(crossDimension, shortways)
+
+	// Precisely calculate the needed length: text width + icon widths + grid spacing + buffer
+	property real textSpace: textMet.width + 16 // 8 left padding + 8 right padding
+	property real iconSpace: targetWindowCount > 0 ? (targetWindowCount * effectiveCross) + ((targetWindowCount - 1) * 4) : 0
+	property real longways: textSpace + iconSpace + 4
+
 	implicitWidth: plasmoid.formFactor === PlasmaCore.Types.Vertical ? shortways : longways
 	implicitHeight: plasmoid.formFactor === PlasmaCore.Types.Vertical ? longways : shortways
 
 	Text {
 		id: numberText
+		visible: taskbarBox.customIcon === ""// && plasmoid.configuration.stayVisible
 		anchors.left: parent.left
 		anchors.verticalCenter: parent.verticalCenter
+		width: textSpace
+		horizontalAlignment: Text.AlignHCenter
 		text: pagerModel.currentPage + 1
 		color: fontColor
 		leftPadding: 8
@@ -75,21 +91,44 @@ Rectangle {
 			pixelSize: fontSizeChecked ? plasmoid.configuration.fontSize : Math.min(parent.height*0.7, parent.width*0.7)
 		}
 	}
+	
+	Item {
+		id: customIconContainer
+		visible: taskbarBox.customIcon !== ""
+		anchors.left: parent.left
+		anchors.verticalCenter: parent.verticalCenter
+		width: textSpace
+		height: parent.height
+
+		Kirigami.Icon {
+			anchors.centerIn: parent
+			// Inherit the exact same sizing rules as the text font
+			width: fontSizeChecked ? plasmoid.configuration.fontSize : Math.min(parent.height*0.7, parent.width*0.7)
+			height: width
+			// Treat the SVG as a monochrome mask and recolor:
+			source: taskbarBox.customIcon
+			isMask: true        
+			color: fontColor    
+		}
+	}
 
 	Grid {
 		id: tasksGrid
+		visible: !taskbarBox.isCompactInactive
 		anchors.left: numberText.right
 		anchors.verticalCenter: parent.verticalCenter
 		columnSpacing: 4
 
-		readonly property int maxIconCountO: Math.floor(Math.max(taskbarBox.height, taskbarBox.width) / taskBoxSize)
-		readonly property int maxIconCount: Math.max(maxIconCountO, taskbarBox.taskWindows.length)
-		readonly property bool showIconsInColumn: plasmoid.formFactor === PlasmaCore.Types.Vertical
-		readonly property bool showAllIcons: true //taskbarBox.taskWindows.length <= maxIconCount
 		readonly property int taskBoxSize: Math.min(taskbarBox.height, taskbarBox.width)
+		
+		readonly property real availableSpace: (plasmoid.formFactor === PlasmaCore.Types.Vertical ? taskbarBox.height : taskbarBox.width) - textSpace
+		readonly property int maxIconCount: Math.floor((Math.max(0, availableSpace) + 4) / Math.max(1, taskBoxSize + 4))
+		
+		readonly property bool showIconsInColumn: plasmoid.formFactor === PlasmaCore.Types.Vertical
+		readonly property bool showAllIcons: taskbarBox.taskWindows.length <= maxIconCount
 
-		columns: (showIconsInColumn || !showAllIcons) ? 1 : maxIconCount
-		rows: (showIconsInColumn && showAllIcons) ? maxIconCount : 1
+		columns: (showIconsInColumn || !showAllIcons) ? 1 : Math.max(1, maxIconCount)
+		rows: (showIconsInColumn && showAllIcons) ? Math.max(1, maxIconCount) : 1
 		flow: showIconsInColumn ? Grid.TopToBottom : Grid.LeftToRight
 
 		component TaskBox: Item {

@@ -46,6 +46,10 @@
 			</choices>
 			<default>1</default>
 		</entry>
+		<entry name="compactShowInactive" type="Bool">
+			<label>Show inactive desktops without icons in compact layout</label>
+			<default>true</default>
+		</entry>
 		<entry name="windowCountPerDesktop" type="Int">
 			<label>The minimum taskbar width in number of windows.</label>
 			<default>5</default>

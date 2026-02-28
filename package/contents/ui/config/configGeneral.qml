@@ -33,6 +33,7 @@ KCM.SimpleKCM {
 	property alias cfg_wrapPage: wrapPage.checked
 	property alias cfg_currentDesktopSelected: currentDesktopSelectedBox.currentIndex
 	property alias cfg_actionOnCompactLayout: actionOnCompactLayout.checked
+	property alias cfg_compactShowInactive: compactShowInactive.checked // NEW
 	property alias cfg_windowCountPerDesktop: windowCountPerDesktop.value
 	property alias cfg_pinnedWindowBehavior: pinnedWindowBehaviorBox.currentIndex
 
@@ -82,6 +83,12 @@ KCM.SimpleKCM {
 										 "<b>Full</b>:<br>Always show full layout.<br><br>" +
 										 "<b>Compact</b>:<br>Always show compact layout."
 			}
+		}
+		
+
+		QtControls.CheckBox {
+			id: compactShowInactive
+			text: i18n("Show inactive desktop labels in compact layout.")
 		}
 
 		Item {
