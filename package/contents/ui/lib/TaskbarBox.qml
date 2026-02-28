@@ -45,7 +45,8 @@ Rectangle {
 		text: numberText.text
 		font: numberText.font
 	}
-	property real longways: Math.max(textMet.width + 10, taskbarBox.height * (plasmoid.configuration.windowCountPerDesktop + 1) + 7)
+	property int windowsCountVisible: Math.max(taskbarBox.taskWindows.length, plasmoid.configuration.windowCountPerDesktop)
+	property real longways: Math.max(textMet.width + 10, (taskbarBox.height + 4) * (windowsCountVisible + 1))
 	property real shortways: textMet.height + 6
 	implicitWidth: plasmoid.formFactor === PlasmaCore.Types.Vertical ? shortways : longways
 	implicitHeight: plasmoid.formFactor === PlasmaCore.Types.Vertical ? longways : shortways
@@ -89,9 +90,10 @@ Rectangle {
 		visible: plasmoid.configuration.showWindowIcons
 		columnSpacing: 4
 
-		readonly property int maxIconCount: Math.floor(Math.max(taskbarBox.height, taskbarBox.width) / taskBoxSize)
+		readonly property int maxIconCountO: Math.floor(Math.max(taskbarBox.height, taskbarBox.width) / taskBoxSize)
+		readonly property int maxIconCount: Math.max(maxIconCountO, taskbarBox.taskWindows.length)
 		readonly property bool showIconsInColumn: plasmoid.formFactor === PlasmaCore.Types.Vertical
-		readonly property bool showAllIcons: taskbarBox.taskWindows.length <= maxIconCount
+		readonly property bool showAllIcons: true //taskbarBox.taskWindows.length <= maxIconCount
 		readonly property int taskBoxSize: Math.min(taskbarBox.height, taskbarBox.width)
 
 		columns: (showIconsInColumn || !showAllIcons) ? 1 : maxIconCount

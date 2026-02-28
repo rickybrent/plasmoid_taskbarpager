@@ -63,7 +63,7 @@
 			<default>1</default>
 		</entry>
 		<entry name="windowCountPerDesktop" type="Int">
-			<label>The number of windows to show per desktop.</label>
+			<label>The minimum taskbar width in number of windows.</label>
 			<default>5</default>
 		</entry>
 		<entry name="pinnedWindowBehavior" type="Enum">
