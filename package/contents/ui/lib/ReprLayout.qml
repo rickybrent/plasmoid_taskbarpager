@@ -72,6 +72,24 @@ RowLayout {
 		return width >= wantedWidth && height >= wantedHeight
 	}
 
+	function handleDesktopClick(targetIndex) {
+		if (targetIndex === pagerModel.currentPage) {
+			if (reprLayout.shouldShowFullLayout || plasmoid.configuration.actionOnCompactLayout) {
+				switch (plasmoid.configuration.currentDesktopSelected) {
+					case 0: break;
+					case 1: pagerModel.changePage(pagerModel.currentPage); break;
+					case 2: runOverview(); break;
+				}
+				root.expanded = false;
+			} else {
+				root.expanded = !root.expanded;
+			}
+		} else {
+			pagerModel.changePage(targetIndex);
+			root.expanded = false;
+		}
+	}
+
 	property bool shouldShowFullLayout: {
 		if (isFullRep) {
 			return true
@@ -269,12 +287,17 @@ RowLayout {
 				}
 			}
 		}
+		onDesktopClicked: {
+			handleDesktopClick(pagerModel.currentPage);
+		}
+
 		taskWindows: pinnedMapper.taskWindows
 		targetWindowCount: taskWindows.length
 	}
 
 
 	GridLayout {
+		id: pagerGrid
 		Layout.fillWidth: true
 		Layout.fillHeight: true
 		Layout.alignment: Qt.AlignTop
@@ -331,22 +354,7 @@ RowLayout {
 				border.color: index === pagerModel.currentPage ? borderColorHighlight : borderColor
 
 				onDesktopClicked: {
-					// when clicking on the desktop we're already on
-					if (index === pagerModel.currentPage) {
-						if (reprLayout.shouldShowFullLayout || plasmoid.configuration.actionOnCompactLayout) {
-							switch (plasmoid.configuration.currentDesktopSelected) {
-								case 0: break;
-								case 1: pagerModel.changePage(pagerModel.currentPage); break;
-								case 2: runOverview(); break;
-							}
-							root.expanded = false;
-						} else {
-							root.expanded = !root.expanded;
-						}
-					} else {
-						pagerModel.changePage(index);
-						root.expanded = false;
-					}
+					handleDesktopClick(index);
 				}
 
 				DropArea {
