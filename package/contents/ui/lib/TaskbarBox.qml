@@ -35,6 +35,7 @@ Rectangle {
 	property list<var> taskWindows: []
 	property string customIcon: ""
 	property bool isCompactInactive: false
+	property bool isPinnedArea: false
 
 	border.width: plasmoid.configuration.displayBorder ? plasmoid.configuration.borderThickness : 0
 	radius: height < width ? height * (plasmoid.configuration.borderRadius / 100) : width * (plasmoid.configuration.borderRadius / 100)
@@ -138,6 +139,7 @@ Rectangle {
 			property alias source: innerIcon.source
 			property string badgeText: "" 
 			property bool isDemandingAttention: false
+			property string uniqueId: ""
 			property string appName: ""
 			property string title: ""
 			property bool isActive: false
@@ -185,6 +187,7 @@ Rectangle {
 			property var togglePinToAllDesktops
 
 			property var moveWindowToDesktopPage
+			property var reorderTo
 
 			height: tasksGrid.taskBoxSize
 			width: tasksGrid.taskBoxSize
@@ -282,6 +285,43 @@ Rectangle {
 				}
 			}
 
+			// Droparea for manual reordering.
+			DropArea {
+				enabled: !iconMouseArea.drag.active
+				anchors.fill: parent
+				onEntered: (drag) => {
+					if (drag.source && drag.source.sourcePage !== undefined) {
+						drag.accept();
+					}
+				}
+				onPositionChanged: (drag) => {
+					if (drag.source && drag.source.sourcePage !== undefined) {
+						drag.accept();
+					}
+				}
+				onDropped: (drop) => {
+					if (taskbarBox.isPinnedArea && !drop.source.isOnAllVirtualDesktops) {
+						if (drop.source.togglePinToAllDesktops) {
+							drop.source.visible = false;
+							drop.source.togglePinToAllDesktops();
+							drop.accept();
+						}
+					} else if (drop.source && drop.source.sourcePage === taskBoxRoot.sourcePage && drop.source.isOnAllVirtualDesktops === taskBoxRoot.isOnAllVirtualDesktops) {
+						if (plasmoid.configuration.taskSort === 1 && drop.source.reorderTo) {
+							drop.source.reorderTo(taskBoxRoot.uniqueId);
+						}
+						drop.accept();
+					} else if (drop.source && drop.source.moveWindowToDesktopPage) {
+						// Move from a different desktop directly onto this icon
+						if (drop.source.sourcePage !== taskBoxRoot.sourcePage) {
+							drop.source.visible = false;
+						}
+						drop.source.moveWindowToDesktopPage(taskBoxRoot.sourcePage);
+						drop.accept();
+					}
+				}
+			}
+
 			// Badge overlay (notification count, attention state)
 			Rectangle {
 				id: badge
@@ -320,6 +360,7 @@ Rectangle {
 				isDemandingAttention: modelData.isDemandingAttention || false
 				appName: modelData.appName || ""
 				title: modelData.title || ""
+				uniqueId: modelData.uniqueId || ""
 				isActive: modelData.isActive || false
 				sourcePage: modelData.sourcePage
 				
@@ -362,6 +403,7 @@ Rectangle {
 				toggleExcludeFromCapture: modelData.toggleExcludeFromCapture
 				togglePinToAllDesktops: modelData.togglePinToAllDesktops
 				moveWindowToDesktopPage: modelData.moveWindowToDesktopPage
+				reorderTo: modelData.reorderTo
 			}
 		}
 

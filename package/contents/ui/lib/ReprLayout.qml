@@ -123,9 +123,12 @@ GridLayout {
 		property int pageIndex: 0
 		property bool onlyPinned: false
 		property bool excludePinned: false
+		property var manualOrder: []
 
 		property list<var> taskWindows: {
 			const result = [];
+			const currentManualOrder = manualOrder;
+
 			for (let i = 0; i < proxyRepeater.count; i++) {
 				const taskProxy = proxyRepeater.itemAt(i);
 				if (!taskProxy) continue;
@@ -134,9 +137,9 @@ GridLayout {
 				if (excludePinned && taskProxy.isOnAllVirtualDesktops) continue;
 
 				let badgeString = "";
-				const numberMatch = taskProxy.title.match(/\((\d+)\)/);
+				const numberMatch = taskProxy.title.match(/\((\d+)\)|\[(\d+)\]/);
 				if (numberMatch) {
-					badgeString = numberMatch[1];
+					badgeString = numberMatch[1] || numberMatch[2];
 				} else if (taskProxy.title.startsWith("•") || taskProxy.title.endsWith("•")) {
 					badgeString = "•";
 				} else if (taskProxy.isDemandingAttention) {
@@ -174,7 +177,11 @@ GridLayout {
 					isKeepAbove: taskProxy.isKeepAbove,
 					isKeepBelow: taskProxy.isKeepBelow,
 					geometry: taskProxy.geometry,
+					uniqueId: taskProxy.uniqueId,
 
+					reorderTo: (targetUniqueId) => {
+						mapperRoot.reorder(taskProxy.uniqueId, targetUniqueId);
+					},
 					activateWindow: () => {
 						pagerModel.changePage(pageIndex);
 						mapperRoot.tasksModel.requestActivate(mapperRoot.tasksModel.index(i, 0)); 
@@ -231,6 +238,15 @@ GridLayout {
 			}
 
 			switch (plasmoid.configuration.taskSort) {
+				case 1: // Manual
+					result.sort((a, b) => {
+						let idxA = currentManualOrder.indexOf(a.uniqueId);
+						let idxB = currentManualOrder.indexOf(b.uniqueId);
+						if (idxA === -1) idxA = 999;
+						if (idxB === -1) idxB = 999;
+						return idxA - idxB;
+					});
+					break;
 				case 2: // Alphabetical
 					result.sort((a, b) => {
 						// Fallback to title if appName is empty
@@ -258,6 +274,30 @@ GridLayout {
 				// case 0 (Do not sort) and case 1 (Manual): 
 			}
 			return result;
+		}
+
+		function reorder(sourceId, targetId) {
+			if (sourceId === targetId) return;
+			let currentOrder = manualOrder.slice();
+			
+			// Ensure all current windows are in the tracking array
+			for (let i = 0; i < proxyRepeater.count; i++) {
+				let uid = proxyRepeater.itemAt(i).uniqueId;
+				if (currentOrder.indexOf(uid) === -1) {
+					currentOrder.push(uid);
+				}
+			}
+
+			let sourceIdx = currentOrder.indexOf(sourceId);
+			let targetIdx = currentOrder.indexOf(targetId);
+
+			if (sourceIdx !== -1 && targetIdx !== -1) {
+				currentOrder.splice(sourceIdx, 1);
+				currentOrder.splice(targetIdx, 0, sourceId);
+				
+				// Re-assign to trigger the QML binding update
+				manualOrder = currentOrder;
+			}
 		}
 
 		Repeater {
@@ -294,6 +334,8 @@ GridLayout {
 				property bool isKeepAbove: model.IsKeepAbove
 				property bool isKeepBelow: model.IsKeepBelow
 				property rect geometry: model.Geometry || Qt.rect(0,0,0,0) 
+				property var winIds: model.WinIdList
+				property string uniqueId: (winIds && winIds.length > 0) ? winIds[0].toString() : (title + appName + index)
 			}
 		}
 	}
@@ -301,6 +343,7 @@ GridLayout {
 
 	TaskbarBox {
 		id: pinnedBox
+		isPinnedArea: true
 		visible: plasmoid.configuration.pinnedWindowBehavior === 2
 		text: plasmoid.configuration.desktopLabels === 0 ? "" : "🖈"
 		customIcon: plasmoid.configuration.desktopLabels === 0 ? "" :  "window-pin"
@@ -325,6 +368,7 @@ GridLayout {
 		}
 
 		DropArea {
+			z: -1
 			anchors.fill: parent
 			onDropped: (drop) => {
 				if (drop.source && drop.source.moveWindowToDesktopPage) {
@@ -422,6 +466,7 @@ GridLayout {
 				}
 
 				DropArea {
+					z: -1
 					anchors.fill: parent
 					onDropped: (drop) => {
 						if (drop.source && drop.source.moveWindowToDesktopPage) {
