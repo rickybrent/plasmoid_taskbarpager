@@ -133,7 +133,7 @@ Rectangle {
 			family: plasmoid.configuration.fontFamily || Kirigami.Theme.defaultFont.family
 			bold: plasmoid.configuration.fontBold
 			italic: plasmoid.configuration.fontItalic
-			pixelSize: fontSizeChecked ? plasmoid.configuration.fontSize : Math.min(parent.height*0.7, parent.width*0.7)
+			pixelSize: fontSizeChecked ? plasmoid.configuration.fontSize : crossDimension * 0.5
 		}
 	}
 	
@@ -148,7 +148,7 @@ Rectangle {
 		Kirigami.Icon {
 			anchors.centerIn: parent
 			// Inherit the exact same sizing rules as the text font
-			width: fontSizeChecked ? plasmoid.configuration.fontSize : Math.min(parent.height*0.7, parent.width*0.7)
+			width: fontSizeChecked ? plasmoid.configuration.fontSize : crossDimension * 0.5
 			height: width
 			// Treat the SVG as a monochrome mask and recolor:
 			source: taskbarBox.customIcon
