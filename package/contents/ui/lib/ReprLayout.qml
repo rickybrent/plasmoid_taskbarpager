@@ -367,18 +367,6 @@ GridLayout {
 			onlyPinned: true
 		}
 
-		DropArea {
-			z: -1
-			anchors.fill: parent
-			onDropped: (drop) => {
-				if (drop.source && drop.source.moveWindowToDesktopPage) {
-					drop.source.visible = false
-					drop.source.togglePinToAllDesktops()
-					drop.accept();
-				}
-			}
-		}
-
 		onDesktopClicked: {
 			handleDesktopClick(pagerModel.currentPage);
 		}
@@ -428,6 +416,7 @@ GridLayout {
 				id: tBox
 				// Expose this so the PinnedBox can grab it
 				property var desktopTasksModel: TasksModel
+				pageIndex: index
 
 				isCompactInactive: !reprLayout.shouldShowFullLayout && index !== pagerModel.currentPage && plasmoid.configuration.compactShowInactive
 				visible: reprLayout.shouldShowFullLayout || index === pagerModel.currentPage || isCompactInactive
@@ -463,20 +452,6 @@ GridLayout {
 
 				onDesktopClicked: {
 					handleDesktopClick(index);
-				}
-
-				DropArea {
-					z: -1
-					anchors.fill: parent
-					onDropped: (drop) => {
-						if (drop.source && drop.source.moveWindowToDesktopPage) {
-							if (drop.source.sourcePage !== index) {
-								drop.source.visible = false
-							}
-							drop.source.moveWindowToDesktopPage(index);
-							drop.accept();
-						}
-					}
 				}
 			}
 		}

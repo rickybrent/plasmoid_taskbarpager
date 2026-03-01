@@ -36,6 +36,7 @@ Rectangle {
 	property string customIcon: ""
 	property bool isCompactInactive: false
 	property bool isPinnedArea: false
+	property int pageIndex: -1
 
 	border.width: plasmoid.configuration.displayBorder ? plasmoid.configuration.borderThickness : 0
 	radius: height < width ? height * (plasmoid.configuration.borderRadius / 100) : width * (plasmoid.configuration.borderRadius / 100)
@@ -49,6 +50,48 @@ Rectangle {
 	MouseArea {
 		anchors.fill: parent
 		onClicked: taskbarBox.desktopClicked()
+	}
+
+	function handleWindowDrop(drop, targetTaskBox) {
+		let src = drop.source;
+		if (!src) return;
+
+		// "All desktops" pinned area:
+		if (taskbarBox.isPinnedArea) {
+			if (!src.isOnAllVirtualDesktops && src.togglePinToAllDesktops) {
+				src.visible = false;
+				src.togglePinToAllDesktops();
+				drop.accept();
+			} else if (targetTaskBox && src.isOnAllVirtualDesktops === targetTaskBox.isOnAllVirtualDesktops) {
+				if (plasmoid.configuration.taskSort === 1 && src.reorderTo) {
+					src.reorderTo(targetTaskBox.uniqueId);
+				}
+				drop.accept();
+			}
+			return;
+		}
+
+		// Everywhere else:
+		if (targetTaskBox && src.sourcePage === targetTaskBox.sourcePage && src.isOnAllVirtualDesktops === targetTaskBox.isOnAllVirtualDesktops) {
+			// Reorder within the same desktop
+			if (plasmoid.configuration.taskSort === 1 && src.reorderTo) {
+				src.reorderTo(targetTaskBox.uniqueId);
+			}
+			drop.accept();
+		} else if (src.moveWindowToDesktopPage) {
+			// Move to this desktop
+			if (src.sourcePage !== taskbarBox.pageIndex) {
+				src.visible = false;
+			}
+			src.moveWindowToDesktopPage(taskbarBox.pageIndex);
+			drop.accept();
+		}
+	}
+
+	DropArea {
+		anchors.fill: parent
+		z: -1
+		onDropped: (drop) => taskbarBox.handleWindowDrop(drop, null)
 	}
 
 	TextMetrics {
@@ -287,6 +330,7 @@ Rectangle {
 
 			// Droparea for manual reordering.
 			DropArea {
+				z: 900
 				enabled: !iconMouseArea.drag.active
 				anchors.fill: parent
 				onEntered: (drag) => {
@@ -299,27 +343,7 @@ Rectangle {
 						drag.accept();
 					}
 				}
-				onDropped: (drop) => {
-					if (taskbarBox.isPinnedArea && !drop.source.isOnAllVirtualDesktops) {
-						if (drop.source.togglePinToAllDesktops) {
-							drop.source.visible = false;
-							drop.source.togglePinToAllDesktops();
-							drop.accept();
-						}
-					} else if (drop.source && drop.source.sourcePage === taskBoxRoot.sourcePage && drop.source.isOnAllVirtualDesktops === taskBoxRoot.isOnAllVirtualDesktops) {
-						if (plasmoid.configuration.taskSort === 1 && drop.source.reorderTo) {
-							drop.source.reorderTo(taskBoxRoot.uniqueId);
-						}
-						drop.accept();
-					} else if (drop.source && drop.source.moveWindowToDesktopPage) {
-						// Move from a different desktop directly onto this icon
-						if (drop.source.sourcePage !== taskBoxRoot.sourcePage) {
-							drop.source.visible = false;
-						}
-						drop.source.moveWindowToDesktopPage(taskBoxRoot.sourcePage);
-						drop.accept();
-					}
-				}
+				onDropped: (drop) => taskbarBox.handleWindowDrop(drop, taskBoxRoot)
 			}
 
 			// Badge overlay (notification count, attention state)
