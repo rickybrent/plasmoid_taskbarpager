@@ -104,7 +104,7 @@ Rectangle {
 	property int targetWindowCount: isCompactInactive ? 0 : Math.max(plasmoid.configuration.windowCountPerDesktop, taskWindows.length)
 
 	// Base orthogonal dimension on font height
-	property real shortways: textMet.height + 6
+	property real shortways: fontSizeChecked ? textMet.height + 6 : 25
 	
 	// Prevent binding loops by explicitly relying on the layout's OPPOSITE dimension
 	property real crossDimension: plasmoid.formFactor === PlasmaCore.Types.Vertical ? taskbarBox.width : taskbarBox.height
@@ -172,8 +172,8 @@ Rectangle {
 		readonly property bool showIconsInColumn: plasmoid.formFactor === PlasmaCore.Types.Vertical
 		readonly property bool showAllIcons: taskbarBox.taskWindows.length <= maxIconCount
 
-		columns: (showIconsInColumn || !showAllIcons) ? 1 : Math.max(1, maxIconCount)
-		rows: (showIconsInColumn && showAllIcons) ? Math.max(1, maxIconCount) : 1
+		columns: showIconsInColumn ? 1 : -1
+		rows: showIconsInColumn ? -1 : 1
 		flow: showIconsInColumn ? Grid.TopToBottom : Grid.LeftToRight
 
 		component TaskBox: Item {
