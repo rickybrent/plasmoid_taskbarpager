@@ -37,13 +37,13 @@ GridLayout {
 	property bool isVertical: Plasmoid.formFactor === 3
 	rows: isVertical ? 2 : 1
 	columns: isVertical ? 1 : 2	
-	
-	property color bgColorHighlight: plasmoid.configuration.activeBgColorChecked ?
-		plasmoid.configuration.activeBgColor : Kirigami.Theme.backgroundColor
 
 	property color fontColor: plasmoid.configuration.fontColorChecked ? 
 			plasmoid.configuration.fontColor : Kirigami.Theme.textColor
 
+	// TODO: Remove non-custom bg colors if we're going with the svg theme frames.
+	property color bgColorHighlight: plasmoid.configuration.activeBgColorChecked ?
+		plasmoid.configuration.activeBgColor : Kirigami.Theme.backgroundColor
 	// Dim backgrounds of all but current desktop
 	property color bgColor: plasmoid.configuration.inactiveBgColorChecked ?
 		plasmoid.configuration.inactiveBgColor :
@@ -355,8 +355,6 @@ GridLayout {
 		Layout.preferredHeight: implicitHeight 
 		Layout.minimumHeight: 25
 		Layout.alignment: reprLayout.isVertical ? (Qt.AlignLeft | Qt.AlignTop) : (Qt.AlignTop | Qt.AlignHCenter)
-
-		color: bgColorWithoutWindows
 		border.color: borderColor
 
 		// Fetch the TasksModel from the first regular virtual desktop to get the master list
@@ -446,8 +444,6 @@ GridLayout {
 
 				taskWindows: taskMapper.taskWindows
 
-				//highlight the current desktop
-				color: index === pagerModel.currentPage ? bgColorHighlight : ((taskMapper.taskWindows.length > 0) ? bgColor : bgColorWithoutWindows)
 				border.color: index === pagerModel.currentPage ? borderColorHighlight : borderColor
 
 				onDesktopClicked: {

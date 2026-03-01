@@ -24,19 +24,26 @@ import org.kde.plasma.core as PlasmaCore
 import org.kde.plasma.components as PlasmaComponents
 import org.kde.kquickcontrolsaddons as KQuickControlsAddonsComponents
 import org.kde.kirigami as Kirigami
+import org.kde.ksvg as KSvg
 import com.github.rickybrent.taskbarpager as PagerMod
+import Qt5Compat.GraphicalEffects
 
 Rectangle {
 	id: taskbarBox
 	property alias text: numberText.text 
-	property bool fontSizeChecked: plasmoid.configuration.fontSizeChecked
-	property color fontColor: plasmoid.configuration.fontColorChecked ? 
-			plasmoid.configuration.fontColor : Kirigami.Theme.textColor
 	property list<var> taskWindows: []
 	property string customIcon: ""
 	property bool isCompactInactive: false
 	property bool isPinnedArea: false
 	property int pageIndex: -1
+
+	property bool fontSizeChecked: plasmoid.configuration.fontSizeChecked
+	property color fontColor: plasmoid.configuration.fontColorChecked ? 
+			plasmoid.configuration.fontColor : Kirigami.Theme.textColor
+	property color bgColor: pageIndex === pagerModel.currentPage ? 
+        reprLayout.bgColorHighlight : ((taskWindows.length > 0) ? reprLayout.bgColor : reprLayout.bgColorWithoutWindows)
+	property bool useCustomBackground: pageIndex === pagerModel.currentPage ? plasmoid.configuration.activeBgColorChecked : ((taskWindows.length > 0) ? plasmoid.configuration.inactiveBgColorChecked : plasmoid.configuration.inactiveBgColorWithoutWindowsChecked)
+	color: "transparent"
 
 	border.width: plasmoid.configuration.displayBorder ? plasmoid.configuration.borderThickness : 0
 	radius: height < width ? height * (plasmoid.configuration.borderRadius / 100) : width * (plasmoid.configuration.borderRadius / 100)
@@ -86,6 +93,45 @@ Rectangle {
 			src.moveWindowToDesktopPage(taskbarBox.pageIndex);
 			drop.accept();
 		}
+	}
+
+	// Get the list of edge prefixes based on panel location
+	function getEdgePrefixes(state) {
+		let edge = "south"; // Default for bottom panels
+		if (plasmoid.location === PlasmaCore.Types.TopEdge) {
+			edge = "north";
+		} else if (plasmoid.location === PlasmaCore.Types.LeftEdge) {
+			edge = "west";
+		} else if (plasmoid.location === PlasmaCore.Types.RightEdge) {
+			edge = "east";
+		}
+
+		// Returning an array to enable falling back to the generic state if the theme is missing a specific prefix.
+		return [edge + "-" + state, state];
+	}
+
+	// Custom bg, also used to clip the themed frame if radius is enabled.
+	Rectangle {
+		id: taskbarBg
+		anchors.fill: parent
+		color: useCustomBackground ? bgColor : Kirigami.Theme.backgroundColor
+		visible: useCustomBackground
+		radius: taskbarBox.radius
+		border.width: plasmoid.configuration.displayBorder ? plasmoid.configuration.borderThickness : 0
+		border.color: plasmoid.configuration.borderColor
+	}
+
+	// Background from the theme, including the indicator bar on breeze.
+	KSvg.FrameSvgItem {
+		id: taskbarFrame
+		anchors.fill: parent
+		visible: !useCustomBackground
+		imagePath: "widgets/tasks"		
+		prefix: !taskbarBox.isPinnedArea && (taskbarBox.pageIndex === pagerModel.currentPage) ? taskbarBox.getEdgePrefixes("normal") : taskbarBox.getEdgePrefixes("minimized")
+		layer.enabled: plasmoid.configuration.borderRadius > 0 && !useCustomBackground
+		layer.effect: OpacityMask {
+            maskSource: taskbarBg
+        }
 	}
 
 	DropArea {
@@ -251,9 +297,36 @@ Rectangle {
 			// Hovered task highlight:
 			Rectangle {
 				anchors.fill: parent
-				visible: tooltipArea.containsMouse
+				visible: tooltipArea.containsMouse && false
 				readonly property color color_: Kirigami.Theme.highlightColor
 				color: Qt.rgba(color_.r, color_.g, color_.b, 0.2) 				
+			}
+
+
+			// Themed task background
+			KSvg.FrameSvgItem {
+				id: taskFrame
+				anchors.fill: parent
+				imagePath: "widgets/tasks"
+				
+				// Only show the background if the task is active, hovered, or demanding attention
+				visible: taskBoxRoot.isActive || tooltipArea.containsMouse || taskBoxRoot.isDemandingAttention
+				
+				prefix: {
+					let state = "normal";
+					
+					if (taskBoxRoot.isDemandingAttention) {
+						state = "attention";
+					} else if (tooltipArea.containsMouse) {
+						state = "hover";
+					} else if (taskBoxRoot.isActive) {
+						state = "focus";
+					} else if (taskBoxRoot.isMinimized) {
+						state = "minimized";
+					}
+					
+					return taskbarBox.getEdgePrefixes(state);
+				}
 			}
 
 			// Per-window tooltip (and hover events).
