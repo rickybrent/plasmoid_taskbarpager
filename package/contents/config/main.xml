@@ -40,6 +40,10 @@
 			</choices>
 			<default>2</default>
 		</entry>
+		<entry name="showOnlyCurrentScreen" type="Bool">
+			<label>Only show tasks from the current screen.</label>
+			<default>true</default>
+		</entry>
 		<entry name="forceLayout" type="Enum">
 			<label>Which layout to use.</label>
 			<choices>

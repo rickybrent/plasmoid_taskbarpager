@@ -35,7 +35,8 @@ KCM.SimpleKCM {
 	property alias cfg_wrapPage: wrapPage.checked
 	property alias cfg_currentDesktopSelected: currentDesktopSelectedBox.currentIndex
 	property alias cfg_actionOnCompactLayout: actionOnCompactLayout.checked
-	property alias cfg_compactShowInactive: compactShowInactive.checked // NEW
+	property alias cfg_compactShowInactive: compactShowInactive.checked
+	property alias cfg_showOnlyCurrentScreen: showOnlyCurrentScreen.checked
 	property alias cfg_windowCountPerDesktop: windowCountPerDesktop.value
 	property alias cfg_pinnedWindowBehavior: pinnedWindowBehaviorBox.currentIndex
 	property alias cfg_taskSort: taskSort.currentIndex
@@ -144,6 +145,11 @@ KCM.SimpleKCM {
 			from: 0
 			to: 10
 			stepSize: 1
+		}
+
+		QtControls.CheckBox {
+			id: showOnlyCurrentScreen
+			text: i18n("Show only windows from the current screen.")
 		}
 
 		Item {

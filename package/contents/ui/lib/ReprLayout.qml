@@ -133,7 +133,7 @@ GridLayout {
 				const taskProxy = proxyRepeater.itemAt(i);
 				if (!taskProxy) continue;
 				if (onlyPinned && !taskProxy.isOnAllVirtualDesktops) continue;
-				if (!onlyPinned &&plasmoid.configuration.pinnedWindowBehavior === 1 && taskProxy.isOnAllVirtualDesktops && index !== pagerModel.currentPage) continue;
+				if (!onlyPinned &&plasmoid.configuration.pinnedWindowBehavior === 1 && taskProxy.isOnAllVirtualDesktops && pageIndex !== pagerModel.currentPage) continue;
 				if (excludePinned && taskProxy.isOnAllVirtualDesktops) continue;
 
 				let badgeString = "";
